@@ -17,14 +17,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         addPreferencesFromResource(R.xml.prefecences);
         sharedPreferences=getPreferenceManager().getSharedPreferences();
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        System.out.println("change");
     }
 
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String s) {
         if (s.equals("emergency_text")){
-            System.out.println("changed emergency text");
+            Log.i("EmergencyCall", "onSharedPreferenceChanged: changed emergency text.");
         }
     }
 

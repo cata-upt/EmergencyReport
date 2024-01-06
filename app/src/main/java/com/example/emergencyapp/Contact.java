@@ -21,6 +21,8 @@ public class Contact implements Serializable {
     String name;
     String phoneNumber;
 
+    private static String TAG="EmergencyCall";
+
     public Contact() {
     }
 
@@ -60,19 +62,26 @@ public class Contact implements Serializable {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("contacts", serializedContacts);
         editor.apply();
-        Log.d("Contact", "saveContactsToPreferences: "+serializedContacts);
+        Log.d(TAG, "saveContactsToPreferences: "+serializedContacts);
     }
 
     // Load contacts from SharedPreferences
     public static ArrayList<Contact> loadContactsFromPreferences(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences("MyContacts", Context.MODE_PRIVATE);
-        String serializedContacts = preferences.getString("contacts", "");
+        ArrayList<Contact> contacts=null;
+        try {
+            SharedPreferences preferences = context.getSharedPreferences("MyContacts", Context.MODE_PRIVATE);
+            String serializedContacts = preferences.getString("contacts", "");
 
-        Gson gson = new Gson();
-        Type type = new TypeToken<ArrayList<Contact>>() {}.getType();
+            Gson gson = new Gson();
+            Type type = new TypeToken<ArrayList<Contact>>() {
+            }.getType();
+            contacts = gson.fromJson(serializedContacts, type);
+            Log.d(TAG, "loadContactsFromPreferences: " + serializedContacts);
 
-        Log.d("Contact", "loadContactsFromPreferences: "+serializedContacts);
-        return gson.fromJson(serializedContacts, type);
+        }catch (Exception e){
+            Log.e(TAG, "loadContactsFromPreferences: exception", e);
+        }
+        return contacts;
     }
 
     @Override

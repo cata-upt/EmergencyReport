@@ -47,6 +47,8 @@ public class AddContactActivity extends AppCompatActivity {
 
     private ArrayAdapter<Contact> adapter;
 
+    private static String TAG="EmergencyCall";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -76,6 +78,7 @@ public class AddContactActivity extends AppCompatActivity {
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, contactList);
         mContactList.setAdapter(adapter);
+        Log.i(TAG, "onCreate: Add contact activity");
         loadContacts();
     }
 
@@ -91,11 +94,13 @@ public class AddContactActivity extends AppCompatActivity {
         ArrayList<Contact> existingContacts = Contact.loadContactsFromPreferences(this);
 
         // Add the loaded contacts to the adapter
-        adapter.addAll(existingContacts);
+        if(existingContacts!=null) {
+            adapter.addAll(existingContacts);
 
-        // Notify the adapter that the data has changed
-        adapter.notifyDataSetChanged();
-        Log.i("TAG", "loadContacts: ");
+            // Notify the adapter that the data has changed
+            adapter.notifyDataSetChanged();
+        }
+        Log.i(TAG, "loadContacts: ");
     }
 
     public void updateButton(boolean enable)
@@ -198,8 +203,8 @@ public class AddContactActivity extends AppCompatActivity {
                 String contactName = cursorPhone.getString(nameColumnIndex);
                 String contactPhoneNumber = cursorPhone.getString(phoneNumberColumnIndex);
 
-                Log.d("YourActivity", "Contact Name: " + contactName);
-                Log.d("YourActivity", "Contact Phone Number: " + contactPhoneNumber);
+                Log.d(TAG, "Contact Name: " + contactName);
+                Log.d(TAG, "Contact Phone Number: " + contactPhoneNumber);
 
                 contact=new Contact(contactName,contactPhoneNumber);
             }
@@ -240,7 +245,7 @@ public class AddContactActivity extends AppCompatActivity {
         // Save the updated contacts list to SharedPreferences
         Contact.saveContactsToPreferences(this, contactList);
 
-        Log.d("TAG", "saveContactToPreferences: "+contactList.size());
+        Log.d(TAG, "saveContactToPreferences: "+contactList.size());
     }
 
     private void deleteContact(int position) {
@@ -256,6 +261,7 @@ public class AddContactActivity extends AppCompatActivity {
         // Clear selection
         selectedPosition = -1;
         updateSelection();
+        Log.d(TAG, "deleteContact: "+contactList.size());
     }
 
     private void updateSelection() {
@@ -270,6 +276,7 @@ public class AddContactActivity extends AppCompatActivity {
         }
 
         mContactDelete.setEnabled(selectedPosition != -1);
+        Log.i(TAG, "updateSelection");
     }
 
 }
