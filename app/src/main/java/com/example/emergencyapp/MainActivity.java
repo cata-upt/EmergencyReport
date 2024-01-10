@@ -135,17 +135,16 @@ public class MainActivity extends AppCompatActivity {
                             Log.i(TAG, "SMS sent successfully");
                             break;
                         case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                            // Generic failure
                             Log.e(TAG, "SMS sending failed - Generic failure");
                             break;
                         case SmsManager.RESULT_ERROR_RADIO_OFF:
-                            Log.e(TAG, "SMS sending failed-radio off");
+                            Log.e(TAG, "SMS sending failed - radio off");
                             break;
                         case SmsManager.RESULT_ERROR_NULL_PDU:
-                            Log.e(TAG, "SMS sending failed-no PDU defined");
+                            Log.e(TAG, "SMS sending failed - no PDU defined");
                             break;
                         case SmsManager.RESULT_ERROR_NO_SERVICE:
-                            Log.e(TAG, "SMS sending failed-ne service");;
+                            Log.e(TAG, "SMS sending failed - no service");;
                             break;
                     }
                 }
