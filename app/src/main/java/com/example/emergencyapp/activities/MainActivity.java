@@ -1,4 +1,4 @@
-package com.example.emergencyapp;
+package com.example.emergencyapp.activities;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -16,18 +15,19 @@ import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import com.example.emergencyapp.utils.Contact;
+import com.example.emergencyapp.utils.MyLocationListener;
+import com.example.emergencyapp.R;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -56,9 +56,9 @@ public class MainActivity extends AppCompatActivity {
         sendTextButton.setOnClickListener(view -> sendTextToContacts());
 
         if (checkLocationPermissions()) {
-            startLocationUpdates();
-        } else {
             requestLocationPermissions();
+        } else {
+            startLocationUpdates();
         }
 
         locationListener = new MyLocationListener(this);
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                             new Intent("SMS_SENT"),
                             PendingIntent.FLAG_IMMUTABLE
                     );
-                    smsManager.sendTextMessage(c.phoneNumber, null, emergencyText, sentIntent, null);
+                    smsManager.sendTextMessage(c.getPhoneNumber(), null, emergencyText, sentIntent, null);
                     Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
                     Log.i(TAG, "sendTextToContacts: "+emergencyText);
                 } catch (Exception e) {

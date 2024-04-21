@@ -1,4 +1,4 @@
-package com.example.emergencyapp;
+package com.example.emergencyapp.fragments;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -6,6 +6,8 @@ import android.view.MenuInflater;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import com.example.emergencyapp.R;
 
 public class AppBarConfiguration extends Fragment{
     @Override

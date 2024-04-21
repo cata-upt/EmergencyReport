@@ -9,11 +9,7 @@
     android:layout_height="wrap_content">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/accent_color"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        style="@style/ToolbarTheme"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:menu="@menu/navigation_menu"/>
 
@@ -24,7 +20,7 @@
         android:layout_marginTop="?android:attr/actionBarSize">
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
-        android:name="com.example.emergencyapp.SettingsFragment"
+        android:name="com.example.emergencyapp.fragments.SettingsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     </FrameLayout>

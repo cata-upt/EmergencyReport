@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Emergency Call</string>
+    <string name="app_name">Emergency Report</string>
     <string name="action_settings">Settings\n</string>
     <string name="default_emergency_text_replacer">Enter your text here</string>
     <string name="emergency_text_title">Set emergency text</string>
@@ -8,4 +8,8 @@
     <string name="contact_pick_text">Add contact</string>
     <string name="contact_delete_text">Delete contact</string>
     <string name="send_text_button">Send text</string>
+    <string name="profile">Profile</string>
+    <string name="signup_text">Need an account?</string>
+    <string name="signin_text">Already have an account?</string>
+
 </resources>

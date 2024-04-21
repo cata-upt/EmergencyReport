@@ -1,4 +1,4 @@
-package com.example.emergencyapp;
+package com.example.emergencyapp.fragments;
 
 
 import android.content.SharedPreferences;
@@ -8,6 +8,8 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
+import com.example.emergencyapp.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
 
