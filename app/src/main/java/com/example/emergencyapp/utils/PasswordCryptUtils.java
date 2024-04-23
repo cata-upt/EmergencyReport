@@ -4,6 +4,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import android.util.Base64;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -35,15 +36,15 @@ public class PasswordCryptUtils {
         return sb.toString();
     }
 
-    public static boolean verifyPassword(String password, String storedHash, byte[] salt) {
-        String computedHash = hashPassword(password, salt);
-        return computedHash.equals(storedHash);
+    public static boolean verifyPassword(String password, String storedPassword, String salt) {
+        byte[] decodedSalt = Base64.decode(salt, Base64.DEFAULT);
+
+        String computedHash = hashPassword(password, decodedSalt);
+        return computedHash.equals(storedPassword);
     }
 
-    public static String encryptPassword(String originalPassword){
-        byte[] salt = getNextSalt();
+    public static String encryptPassword(String originalPassword, byte[] salt){
         String hashedPassword = hashPassword(originalPassword, salt);
-
         return hashedPassword;
     }
 }

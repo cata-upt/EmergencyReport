@@ -3,8 +3,7 @@ package com.example.emergencyapp.utils;
 import com.example.emergencyapp.exceptions.UserException;
 
 public class UserHelperClass {
-    String name,  username, email, password;
-
+    String name,  username, email, password, salt;
     public UserHelperClass() {
     }
 
@@ -48,12 +47,22 @@ public class UserHelperClass {
     }
 
     private boolean validatePassword(String password) throws UserException {
-        String passwordRegex = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}";
 
         if(password.isEmpty()){
             throw new UserException("The password cannot be null!");
-        }else if(!password.matches(passwordRegex)){
-            throw new UserException("The password needs to have at least a number, a capital letter and a special character!");
+        }else{
+            boolean validPass = true;
+
+            if (password.length() < 8) validPass = false;
+            if (!password.matches(".*[0-9].*")) validPass = false;
+            if (!password.matches(".*[a-z].*")) validPass = false;
+            if (!password.matches(".*[A-Z].*")) validPass = false;
+            if (!password.matches(".*[!#&*~%@$^].*")) validPass = false;
+            if (password.matches(".*\\s.*")) validPass = false;
+
+            if(!validPass) {
+                throw new UserException("The password needs to have 8 characters, at least a number, a capital letter and a special character!");
+            }
         }
         return true;
     }
@@ -82,11 +91,30 @@ public class UserHelperClass {
         this.email = email;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getPassword() {
         return password;
     }
+    public String getSalt() {
+        return salt;
+    }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+
+    @Override
+    public String toString() {
+        return "UserHelperClass{" +
+                "name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", salt='" + salt + '\'' +
+                '}';
     }
 }

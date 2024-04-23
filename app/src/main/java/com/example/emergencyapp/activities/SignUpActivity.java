@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -54,7 +55,7 @@ public class SignUpActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                hideErrorMessage();
+                hideMessageTextView();
             }
         };
 
@@ -71,13 +72,13 @@ public class SignUpActivity extends AppCompatActivity {
     private void findViews(){
         nameField=findViewById(R.id.nameEditText);
         usernameField =findViewById(R.id.usernameEditText);
-        emailField = findViewById(R.id.emailEditText);
-        passwordField = findViewById(R.id.passwordEditText);
+        emailField = findViewById(R.id.usernameEditText);
+        passwordField = findViewById(R.id.signupPasswordEditText);
         registerButton = findViewById(R.id.registerButton);
-        nameLabel = findViewById(R.id.nameLabel);
-        usernameLabel = findViewById(R.id.usernameLabel);
-        emailLabel = findViewById(R.id.emailLabel);
-        passwordLabel = findViewById(R.id.passwordLabel);
+        nameLabel = findViewById(R.id.signupNameLabel);
+        usernameLabel = findViewById(R.id.signupUsernameLabel);
+        emailLabel = findViewById(R.id.sigupEmailLabel);
+        passwordLabel = findViewById(R.id.signupPasswordLabel);
         signInTextView = findViewById(R.id.signInTextView);
     }
 
@@ -85,7 +86,7 @@ public class SignUpActivity extends AppCompatActivity {
         editText.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 label.setVisibility(View.VISIBLE);
-                hideErrorMessage();
+                hideMessageTextView();
             } else{
                 label.setVisibility(View.INVISIBLE);
             }
@@ -107,29 +108,45 @@ public class SignUpActivity extends AppCompatActivity {
         String password = passwordField.getEditableText().toString();
 
         UserHelperClass helperClass = new UserHelperClass(name, username, email, password);
+
         try {
             helperClass.validateUser();
-            hideErrorMessage();
-            helperClass.setPassword(PasswordCryptUtils.encryptPassword(password));
+            hideMessageTextView();
+
+            byte[] salt = PasswordCryptUtils.getNextSalt();
+            String saltString = Base64.encodeToString(salt, Base64.DEFAULT);
+            helperClass.setSalt(saltString);
+
+            helperClass.setPassword(PasswordCryptUtils.encryptPassword(password,salt));
+
             reference.child(username).setValue(helperClass);
-        }catch (UserException exception){
-            displayErrorMessage(exception.getMessage());
-        }catch (Exception e){
-            displayErrorMessage("Something went wrong! Try again!");
+            accountCreatedSuccessfully();
+        } catch (UserException exception) {
+            displayMessageTextView(exception.getMessage());
+        } catch (Exception e) {
+            displayMessageTextView("Something went wrong! Try again!");
         }
 
     }
 
-    private void displayErrorMessage(String message) {
-        TextView errorTextView = findViewById(R.id.errorTextView);
+    private void displayMessageTextView(String message) {
+        TextView errorTextView = findViewById(R.id.registerMessageTextView);
         errorTextView.setText(message);
         errorTextView.setVisibility(View.VISIBLE);
     }
 
-    private void hideErrorMessage() {
-        TextView errorTextView = findViewById(R.id.errorTextView);
+    private void hideMessageTextView() {
+        TextView errorTextView = findViewById(R.id.registerMessageTextView);
         if (errorTextView.getVisibility() == View.VISIBLE) {
             errorTextView.setVisibility(View.GONE);
         }
+    }
+
+    private void accountCreatedSuccessfully(){
+        nameField.setText("");
+        usernameField.setText("");
+        emailField.setText("");
+        passwordField.setText("");
+        displayMessageTextView("Account created successfully!");
     }
 }

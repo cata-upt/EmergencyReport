@@ -21,9 +21,11 @@
         android:orientation="vertical"
         android:gravity="center"
         android:layout_gravity="center"
-        android:layout_centerVertical="true">
+        android:layout_centerVertical="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
     <TextView
-        android:id="@+id/nameLabel"
+        android:id="@+id/signupNameLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
@@ -31,6 +33,7 @@
         android:gravity="left"
         android:paddingLeft="10dp"
         android:paddingTop="10dp"/>
+
     <EditText
         android:id="@+id/nameEditText"
         style="@style/EditTextTheme"
@@ -40,8 +43,9 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:inputType="textPersonName"/>
+
     <TextView
-        android:id="@+id/usernameLabel"
+        android:id="@+id/signupUsernameLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
@@ -49,16 +53,18 @@
         android:gravity="left"
         android:paddingLeft="10dp"
         android:paddingTop="10dp"/>
+
     <EditText
-        android:id="@+id/usernameEditText"
+        android:id="@+id/usernameEditTextRegister"
         style="@style/EditTextTheme"
         android:hint="Username"
         app:layout_constraintTop_toBottomOf="@id/nameEditText"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:inputType="textEmailAddress"/>
+
     <TextView
-        android:id="@+id/emailLabel"
+        android:id="@+id/sigupEmailLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
@@ -66,16 +72,18 @@
         android:gravity="left"
         android:paddingLeft="10dp"
         android:paddingTop="10dp"/>
+
     <EditText
-        android:id="@+id/emailEditText"
+        android:id="@+id/usernameEditText"
         style="@style/EditTextTheme"
         android:hint="Email"
         app:layout_constraintTop_toBottomOf="@id/usernameEditText"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:inputType="textEmailAddress"/>
+
     <TextView
-        android:id="@+id/passwordLabel"
+        android:id="@+id/signupPasswordLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
@@ -84,27 +92,29 @@
         android:paddingLeft="10dp"
         android:paddingTop="10dp"/>
     <EditText
-        android:id="@+id/passwordEditText"
+        android:id="@+id/signupPasswordEditText"
         style="@style/EditTextTheme"
         android:hint="Password"
-        app:layout_constraintTop_toBottomOf="@id/emailEditText"
+        app:layout_constraintTop_toBottomOf="@id/usernameEditText"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:inputType="textPassword"/>
+
     <TextView
-        android:id="@+id/errorTextView"
+        android:id="@+id/registerMessageTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:gravity="center"
         android:padding="16dp"
         android:paddingTop="10dp"/>
+
     <Button
         android:id="@+id/registerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Register"
-        app:layout_constraintTop_toBottomOf="@id/passwordEditText"
+        app:layout_constraintTop_toBottomOf="@id/signupPasswordEditText"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:background="@drawable/rounded_button_background"
