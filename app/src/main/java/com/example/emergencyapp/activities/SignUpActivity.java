@@ -9,13 +9,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.exceptions.UserException;
 import com.example.emergencyapp.utils.PasswordCryptUtils;
-import com.example.emergencyapp.utils.UserHelperClass;
+import com.example.emergencyapp.utils.UserHelper;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -71,8 +74,8 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void findViews(){
         nameField=findViewById(R.id.nameEditText);
-        usernameField =findViewById(R.id.usernameEditText);
-        emailField = findViewById(R.id.usernameEditText);
+        usernameField =findViewById(R.id.usernameEditTextRegister);
+        emailField = findViewById(R.id.emailEditText);
         passwordField = findViewById(R.id.signupPasswordEditText);
         registerButton = findViewById(R.id.registerButton);
         nameLabel = findViewById(R.id.signupNameLabel);
@@ -107,19 +110,12 @@ public class SignUpActivity extends AppCompatActivity {
         String email = emailField.getEditableText().toString();
         String password = passwordField.getEditableText().toString();
 
-        UserHelperClass helperClass = new UserHelperClass(name, username, email, password);
+        UserHelper userHelper = new UserHelper(name, username, email, password);
 
         try {
-            helperClass.validateUser();
+            userHelper.validateUser();
             hideMessageTextView();
-
-            byte[] salt = PasswordCryptUtils.getNextSalt();
-            String saltString = Base64.encodeToString(salt, Base64.DEFAULT);
-            helperClass.setSalt(saltString);
-
-            helperClass.setPassword(PasswordCryptUtils.encryptPassword(password,salt));
-
-            reference.child(username).setValue(helperClass);
+            registerUser(userHelper);
             accountCreatedSuccessfully();
         } catch (UserException exception) {
             displayMessageTextView(exception.getMessage());
@@ -127,6 +123,31 @@ public class SignUpActivity extends AppCompatActivity {
             displayMessageTextView("Something went wrong! Try again!");
         }
 
+    }
+
+    private void registerUser(UserHelper user){
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(user.getEmail(), user.getPassword())
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                        if (firebaseUser != null) {
+                            String userId = firebaseUser.getUid();
+                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+                            databaseReference.child(userId).setValue(user)
+                                    .addOnCompleteListener(task1 -> {
+                                        if (task1.isSuccessful()) {
+                                            Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_LONG).show();
+                                            startActivity(new Intent(SignUpActivity.this, MainActivity.class));
+                                            finish();
+                                        } else {
+                                            Toast.makeText(SignUpActivity.this, "Failed to register", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                        }
+                    } else {
+                        Toast.makeText(SignUpActivity.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private void displayMessageTextView(String message) {

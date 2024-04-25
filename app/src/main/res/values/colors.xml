@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="accent_color_third">#6499E9</color>
-    <color name="accent_color_second">#9EDDFF</color>
+    <color name="accent_color_third">#FFBBBB</color>
+    <color name="accent_color_second">#C5FAD9</color>
     <color name="hyperlink">#FF3700B3</color>
     <color name="teal">#BEFFF7</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="accent_color">#B8E2DB</color>
-    <color name="primary_color">#EEEFEF</color>
+    <color name="accent_color">#9EDDFF</color>
+    <color name="accent_2">#F4D9C6</color>
+    <color name="primary_color">#FFFFFFFF</color>
     <color name="gray">#efe5e5</color>
 </resources>

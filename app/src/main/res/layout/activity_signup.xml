@@ -74,10 +74,10 @@
         android:paddingTop="10dp"/>
 
     <EditText
-        android:id="@+id/usernameEditText"
+        android:id="@+id/emailEditText"
         style="@style/EditTextTheme"
         android:hint="Email"
-        app:layout_constraintTop_toBottomOf="@id/usernameEditText"
+        app:layout_constraintTop_toBottomOf="@id/emailEditText"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:inputType="textEmailAddress"/>
@@ -95,7 +95,7 @@
         android:id="@+id/signupPasswordEditText"
         style="@style/EditTextTheme"
         android:hint="Password"
-        app:layout_constraintTop_toBottomOf="@id/usernameEditText"
+        app:layout_constraintTop_toBottomOf="@id/emailEditText"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:inputType="textPassword"/>

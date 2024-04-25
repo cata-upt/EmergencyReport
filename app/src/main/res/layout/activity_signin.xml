@@ -54,7 +54,7 @@
                 android:id="@+id/loginPasswordEditText"
                 style="@style/EditTextTheme"
                 android:hint="Password"
-                app:layout_constraintTop_toBottomOf="@id/usernameEditText"
+                app:layout_constraintTop_toBottomOf="@id/emailEditText"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 android:inputType="textPassword"

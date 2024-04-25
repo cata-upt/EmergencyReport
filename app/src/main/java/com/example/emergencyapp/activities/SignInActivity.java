@@ -12,7 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.utils.PasswordCryptUtils;
-import com.example.emergencyapp.utils.UserHelperClass;
+import com.example.emergencyapp.utils.UserHelper;
+import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -31,6 +32,7 @@ public class SignInActivity extends AppCompatActivity {
     FirebaseAuth auth;
     FirebaseDatabase rootNode;
     DatabaseReference reference;
+    UserSessionManager userSession;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +68,7 @@ public class SignInActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         rootNode = FirebaseDatabase.getInstance();
         reference = rootNode.getReference("Users");
-
+        userSession = new UserSessionManager(this);
 
         String username = usernameField.getEditableText().toString();
         String password = passwordField.getEditableText().toString();
@@ -75,17 +77,39 @@ public class SignInActivity extends AppCompatActivity {
         loginUser(username, password);
     }
 
-    private void loginUser(String username, String password) {
-        DatabaseReference userRef = reference.child(username);
-        userRef.addValueEventListener(new ValueEventListener() {
+    private void loginUser(String email, String password) {
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        updateUI(user);
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Toast.makeText(SignInActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+    private void updateUI(FirebaseUser user) {
+        if (user != null) {
+            saveUsernameInSavedPreferences(user);
+            startActivity(new Intent(SignInActivity.this, ProfileActivity.class));
+            finish();
+        } else {
+            Toast.makeText(this, "Please sign in to continue.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void saveUsernameInSavedPreferences(FirebaseUser user){
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        DatabaseReference userRef = databaseReference.child(user.getUid()).child("username");
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    UserHelperClass user = dataSnapshot.getValue(UserHelperClass.class);
-                    boolean success = PasswordCryptUtils.verifyPassword(password, user.getPassword(), user.getSalt());
-                    if(success){
-                        displayMessageTextView("Login Successful!");
-                    }
+                    String username = dataSnapshot.getValue(String.class);
+                    userSession.saveLoginDetails(username);
                     Log.d("FirebaseData", "User" + user);
                 } else {
                     Log.d("FirebaseData", "User does not exist.");
@@ -97,15 +121,6 @@ public class SignInActivity extends AppCompatActivity {
                 Log.w("FirebaseData", "Failed to read user data.", databaseError.toException());
             }
         });
-    }
-
-    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
-        } else {
-            Toast.makeText(this, "Please sign in to continue.", Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void setFocusChangeListener(EditText editText, TextView label) {

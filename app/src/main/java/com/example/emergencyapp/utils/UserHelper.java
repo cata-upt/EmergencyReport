@@ -2,12 +2,12 @@ package com.example.emergencyapp.utils;
 
 import com.example.emergencyapp.exceptions.UserException;
 
-public class UserHelperClass {
+public class UserHelper {
     String name,  username, email, password, salt;
-    public UserHelperClass() {
+    public UserHelper() {
     }
 
-    public UserHelperClass(String name, String username, String email, String password) {
+    public UserHelper(String name, String username, String email, String password) {
         this.name = name;
         this.username = username;
         this.email = email;

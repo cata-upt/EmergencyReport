@@ -11,5 +11,12 @@
     <string name="profile">Profile</string>
     <string name="signup_text">Need an account?</string>
     <string name="signin_text">Already have an account?</string>
+    <string name="change_profile_picture">Change profile picture</string>
+    <string name="person_name">Person Name</string>
+    <string name="change_phone_number">Change phone number</string>
+    <string name="change_name">Change Name</string>
+    <string name="log_out">Log Out</string>
+    <string name="enter_new_name">Enter new name</string>
+    <string name="change_name_button_submit">Change Name</string>
 
 </resources>
