@@ -10,7 +10,8 @@
         android:selectAllOnFocus="true"
         android:singleLine="false"
         android:title="@string/emergency_text_title"
-        android:summary="@string/default_emergency_text_replacer" />
+        android:summary="@string/default_emergency_text_replacer"
+        />
     <Preference
         android:key="add_emergency_contact"
         android:title="@string/add_contact">

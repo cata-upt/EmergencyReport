@@ -10,7 +10,6 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
         style="@style/ToolbarTheme"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:menu="@menu/navigation_menu"/>
 
 </com.google.android.material.appbar.AppBarLayout>

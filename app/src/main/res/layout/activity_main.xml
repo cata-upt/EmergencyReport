@@ -8,13 +8,12 @@
 <com.google.android.material.appbar.AppBarLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
-</com.google.android.material.appbar.AppBarLayout>
-
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
         style="@style/ToolbarTheme"
+        android:theme="@style/ToolbarPopup"
         app:menu="@menu/navigation_menu"/>
+</com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout"

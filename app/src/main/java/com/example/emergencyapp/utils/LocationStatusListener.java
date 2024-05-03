@@ -14,11 +14,15 @@ import android.os.Looper;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-public class MyLocationListener implements LocationListener {
+public class LocationStatusListener implements LocationListener{
 
     private static final long MIN_TIME = 10; // Minimum time interval for location updates (in milliseconds)
     private static final float MIN_DISTANCE = 2; // Minimum distance for location updates (in meters)
@@ -26,12 +30,16 @@ public class MyLocationListener implements LocationListener {
     private Context context;
     private LocationManager locationManager;
     private Location currentLocation;
+    private FirebaseUser user;
+    private LocationStatusHandler locationStatusHandler;
 
     private static String TAG="EmergencyCall";
 
-    public MyLocationListener(Context context) {
+    public LocationStatusListener(Context context, FirebaseUser user, LocationStatusHandler locationStatusHandler) {
         this.context = context;
         this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        this.user = user;
+        this.locationStatusHandler = locationStatusHandler;
     }
 
     // Check if the app has location permission
@@ -65,26 +73,15 @@ public class MyLocationListener implements LocationListener {
         }
     }
 
-    // Stop location updates
     public void stopLocationUpdates() {
         locationManager.removeUpdates(this);
     }
 
-    // Get the current location as a string
-    public String getCurrentLocationString() {
-        if (currentLocation != null) {
-            return currentLocation.getLatitude() + ", " + currentLocation.getLongitude();
-        } else {
-            return "Location not available";
-        }
-    }
-
-    // Get readable address from latitude and longitude
     public String getAddressFromLocation() {
         if (currentLocation != null) {
             return getAddressFromLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
         } else {
-            return "Address not available";
+            return null;
         }
     }
 
@@ -118,6 +115,14 @@ public class MyLocationListener implements LocationListener {
     public void onLocationChanged(Location location) {
         currentLocation = location;
         Log.d(TAG, "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude());
+        updateLocationInFirebase(location);
+    }
+
+    private void updateLocationInFirebase(Location location) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseReference.child(user.getUid()).setValue(location)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Location updated in Firebase successfully"))
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to update location in Firebase", e));
     }
 
     @Override
@@ -127,12 +132,19 @@ public class MyLocationListener implements LocationListener {
 
     @Override
     public void onProviderEnabled(String provider) {
-        // Provider (GPS) is enabled
+        if (provider.equals(LocationManager.GPS_PROVIDER)) {
+            if (locationStatusHandler != null) {
+                locationStatusHandler.onGPSEnabled();
+            }
+        }
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        // Provider (GPS) is disabled
+        if (provider.equals(LocationManager.GPS_PROVIDER)) {
+            if (locationStatusHandler != null) {
+                locationStatusHandler.onGPSDisabled();
+            }
+        }
     }
-
 }

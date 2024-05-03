@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.exceptions.UserException;
 import com.example.emergencyapp.utils.PasswordCryptUtils;
+import com.example.emergencyapp.utils.UserDetails;
 import com.example.emergencyapp.utils.UserHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -109,13 +110,15 @@ public class SignUpActivity extends AppCompatActivity {
         String username = usernameField.getEditableText().toString();
         String email = emailField.getEditableText().toString();
         String password = passwordField.getEditableText().toString();
+        String phoneNumber = "";
+        String isLoggedIn = "";
 
-        UserHelper userHelper = new UserHelper(name, username, email, password);
+        UserDetails userDetails = new UserDetails(name, username, email, password, phoneNumber, true);
 
         try {
-            userHelper.validateUser();
+            UserHelper.validateUser(userDetails);
             hideMessageTextView();
-            registerUser(userHelper);
+            registerUser(userDetails);
             accountCreatedSuccessfully();
         } catch (UserException exception) {
             displayMessageTextView(exception.getMessage());
@@ -125,7 +128,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private void registerUser(UserHelper user){
+    private void registerUser(UserDetails user){
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(user.getEmail(), user.getPassword())
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {

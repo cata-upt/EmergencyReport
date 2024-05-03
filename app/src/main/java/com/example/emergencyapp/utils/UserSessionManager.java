@@ -6,7 +6,8 @@ import android.content.SharedPreferences;
 public class UserSessionManager {
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
-    private static final String PREF_NAME = "MyAppPreferences";
+    private UserDetails userDetails;
+    private static final String PREF_NAME = "UserDetails";
 
     public UserSessionManager(Context context) {
         this.sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -14,17 +15,18 @@ public class UserSessionManager {
     }
 
     // To save user login status and username
-    public void saveLoginDetails(String username) {
-        editor.putBoolean("isLoggedIn", true);
-        editor.putString("username", username);
+    public void saveLoginDetails(UserDetails userDetails) {
+        editor.putBoolean("isLoggedIn", userDetails.isLoggedIn());
+        editor.putString("username", userDetails.getUsername());
+        editor.putString("phoneNumber", userDetails.getPhoneNumber());
         editor.apply();
     }
 
-    // To check if user is logged in and get the username
-    public Pair<Boolean, String> getLoginDetails() {
+    public UserDetails getLoginDetails() {
         boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
         String username = sharedPreferences.getString("username", null);
-        return new Pair<>(isLoggedIn, username);
+        String phoneNumber = sharedPreferences.getString("phoneNumber", null);
+        return new UserDetails("", username,"", "", phoneNumber, isLoggedIn);
     }
 
     public void clearSession() {
@@ -32,14 +34,4 @@ public class UserSessionManager {
         editor.apply();
     }
 
-    // Helper class to handle Pair since Java doesn't have a built-in Pair class
-    public static class Pair<T, U> {
-        public final T isLoggedIn;
-        public final U username;
-
-        public Pair(T isLoggedIn, U username) {
-            this.isLoggedIn = isLoggedIn;
-            this.username = username;
-        }
-    }
 }

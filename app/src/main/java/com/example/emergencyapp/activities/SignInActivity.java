@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.utils.PasswordCryptUtils;
+import com.example.emergencyapp.utils.UserDetails;
 import com.example.emergencyapp.utils.UserHelper;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +39,7 @@ public class SignInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        userSession = new UserSessionManager(getApplicationContext());
 
         setContentView(R.layout.activity_signin);
 
@@ -68,7 +70,7 @@ public class SignInActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         rootNode = FirebaseDatabase.getInstance();
         reference = rootNode.getReference("Users");
-        userSession = new UserSessionManager(this);
+
 
         String username = usernameField.getEditableText().toString();
         String password = passwordField.getEditableText().toString();
@@ -82,9 +84,9 @@ public class SignInActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        updateUI(user);
+                        assert user != null;
+                        saveUserDetailsInSavedPreferences(user);
                     } else {
-                        // If sign in fails, display a message to the user.
                         Toast.makeText(SignInActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -93,26 +95,30 @@ public class SignInActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
-            saveUsernameInSavedPreferences(user);
-            startActivity(new Intent(SignInActivity.this, ProfileActivity.class));
+            Intent intent = new Intent(SignInActivity.this, ProfileActivity.class);
+            startActivity(intent);
             finish();
         } else {
             Toast.makeText(this, "Please sign in to continue.", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void saveUsernameInSavedPreferences(FirebaseUser user){
+    private void saveUserDetailsInSavedPreferences(FirebaseUser user){
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-        DatabaseReference userRef = databaseReference.child(user.getUid()).child("username");
+        DatabaseReference userRef = databaseReference.child(user.getUid());
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    String username = dataSnapshot.getValue(String.class);
-                    userSession.saveLoginDetails(username);
-                    Log.d("FirebaseData", "User" + user);
-                } else {
-                    Log.d("FirebaseData", "User does not exist.");
+                    UserDetails userDetails = dataSnapshot.getValue(UserDetails.class);
+                    if (userDetails != null) {
+                        userDetails.setLoggedIn(true);
+                        userSession.saveLoginDetails(userDetails);
+                        updateUI(user);
+                        Log.d("FirebaseData", "User" + userDetails);
+                    } else {
+                        Log.d("FirebaseData", "User does not exist.");
+                    }
                 }
             }
 
