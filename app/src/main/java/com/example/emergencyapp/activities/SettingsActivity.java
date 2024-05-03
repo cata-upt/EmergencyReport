@@ -1,9 +1,12 @@
-package com.example.emergencyapp;
+package com.example.emergencyapp.activities;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import com.example.emergencyapp.R;
+import com.example.emergencyapp.fragments.SettingsFragment;
 
 public class SettingsActivity extends AppCompatActivity {
 

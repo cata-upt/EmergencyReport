@@ -1,12 +1,10 @@
-package com.example.emergencyapp;
+package com.example.emergencyapp.activities;
 
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -14,7 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.view.View;
 import android.widget.Button;
@@ -25,10 +22,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.example.emergencyapp.utils.Contact;
+import com.example.emergencyapp.R;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,7 +113,6 @@ public class AddContactActivity extends AppCompatActivity {
             builder.setMessage("Are you sure you want to delete this contact?");
 
             builder.setPositiveButton("Delete", (dialog, which) -> {
-                // Delete the selected contact
                 deleteContact(selectedPosition);
             });
 
@@ -249,16 +244,9 @@ public class AddContactActivity extends AppCompatActivity {
     }
 
     private void deleteContact(int position) {
-        // Remove the contact from the adapter
         adapter.remove(adapter.getItem(position));
-        //contactList.remove(position);
-        // Notify the adapter that the data has changed
         adapter.notifyDataSetChanged();
-
-        // Save the updated contacts list to SharedPreferences
         Contact.saveContactsToPreferences(this, contactList);
-
-        // Clear selection
         selectedPosition = -1;
         updateSelection();
         Log.d(TAG, "deleteContact: "+contactList.size());
@@ -269,7 +257,7 @@ public class AddContactActivity extends AppCompatActivity {
         for (int i = 0; i < itemCount; i++) {
             View view = mContactList.getChildAt(i);
             if(i==selectedPosition){
-                view.setBackgroundColor(ContextCompat.getColor(this,R.color.accent_color));
+                view.setBackgroundColor(ContextCompat.getColor(this,R.color.accent_color_third));
             }else{
                 view.setBackgroundColor(Color.TRANSPARENT);
             }

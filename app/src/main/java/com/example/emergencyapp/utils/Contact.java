@@ -1,20 +1,16 @@
-package com.example.emergencyapp;
+package com.example.emergencyapp.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Contact implements Serializable {

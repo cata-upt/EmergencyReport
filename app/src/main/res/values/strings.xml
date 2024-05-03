@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Emergency Call</string>
+    <string name="app_name">Emergency Report</string>
     <string name="action_settings">Settings\n</string>
     <string name="default_emergency_text_replacer">Enter your text here</string>
     <string name="emergency_text_title">Set emergency text</string>
@@ -8,4 +8,19 @@
     <string name="contact_pick_text">Add contact</string>
     <string name="contact_delete_text">Delete contact</string>
     <string name="send_text_button">Send text</string>
+    <string name="profile">Profile</string>
+    <string name="signup_text">Need an account?</string>
+    <string name="signin_text">Already have an account?</string>
+    <string name="change_profile_picture">Change profile picture</string>
+    <string name="person_name">Person Name</string>
+    <string name="change_phone_number">Change phone number</string>
+    <string name="change_name">Change Username</string>
+    <string name="log_out">Log Out</string>
+    <string name="enter_new_name">Enter new name</string>
+    <string name="change_name_button_submit">Change Name</string>
+    <string name="change_phone_number_field">Change phone number.</string>
+    <string name="change_phone_number_submit_button">Change phone number.</string>
+    <string name="change_phone_number_hint">Change phone number</string>
+    <string name="contact_name">Contact name</string>
+
 </resources>
