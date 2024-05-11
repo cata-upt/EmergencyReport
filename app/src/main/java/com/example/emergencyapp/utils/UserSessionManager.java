@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 public class UserSessionManager {
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
-    private UserDetails userDetails;
+    private User user;
     private static final String PREF_NAME = "UserDetails";
 
     public UserSessionManager(Context context) {
@@ -15,18 +15,18 @@ public class UserSessionManager {
     }
 
     // To save user login status and username
-    public void saveLoginDetails(UserDetails userDetails) {
-        editor.putBoolean("isLoggedIn", userDetails.isLoggedIn());
-        editor.putString("username", userDetails.getUsername());
-        editor.putString("phoneNumber", userDetails.getPhoneNumber());
+    public void saveLoginDetails(User user) {
+        editor.putBoolean("isLoggedIn", user.isLoggedIn());
+        editor.putString("username", user.getUsername());
+        editor.putString("phoneNumber", user.getPhoneNumber());
         editor.apply();
     }
 
-    public UserDetails getLoginDetails() {
+    public User getLoginDetails() {
         boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
         String username = sharedPreferences.getString("username", null);
         String phoneNumber = sharedPreferences.getString("phoneNumber", null);
-        return new UserDetails("", username,"", "", phoneNumber, isLoggedIn);
+        return new User("", username,"", "", phoneNumber, isLoggedIn);
     }
 
     public void clearSession() {

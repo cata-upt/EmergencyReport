@@ -4,7 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,11 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.exceptions.UserException;
-import com.example.emergencyapp.utils.PasswordCryptUtils;
-import com.example.emergencyapp.utils.UserDetails;
+import com.example.emergencyapp.utils.User;
 import com.example.emergencyapp.utils.UserHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,9 +26,9 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    EditText nameField, usernameField, emailField, passwordField;
+    EditText nameField, usernameField, emailField, passwordField, phoneNumberField;
     Button registerButton;
-    TextView signInTextView, nameLabel, usernameLabel, emailLabel, passwordLabel;
+    TextView signInTextView, nameLabel, usernameLabel, emailLabel, passwordLabel, phoneNumberLabel;
 
     FirebaseDatabase rootNode;
     DatabaseReference reference;
@@ -38,6 +39,8 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_signup);
+        Toolbar myToolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
         findViews();
 
         signInTextView.setOnClickListener(v -> {
@@ -67,10 +70,30 @@ public class SignUpActivity extends AppCompatActivity {
         usernameField.addTextChangedListener(textWatcher);
         emailField.addTextChangedListener(textWatcher);
         passwordField.addTextChangedListener(textWatcher);
+        phoneNumberField.addTextChangedListener(textWatcher);
         setFocusChangeListener(nameField, nameLabel);
         setFocusChangeListener(usernameField, usernameLabel);
         setFocusChangeListener(emailField, emailLabel);
         setFocusChangeListener(passwordField, passwordLabel);
+        setFocusChangeListener(phoneNumberField, phoneNumberLabel);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.navigation_menu, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            Intent i = new Intent(SignUpActivity.this, SettingsActivity.class);
+            startActivity(i);
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     private void findViews(){
@@ -83,6 +106,8 @@ public class SignUpActivity extends AppCompatActivity {
         usernameLabel = findViewById(R.id.signupUsernameLabel);
         emailLabel = findViewById(R.id.sigupEmailLabel);
         passwordLabel = findViewById(R.id.signupPasswordLabel);
+        phoneNumberField = findViewById(R.id.phoneNumberEditText);
+        phoneNumberLabel = findViewById(R.id.signupPhoneNumberLabel);
         signInTextView = findViewById(R.id.signInTextView);
     }
 
@@ -110,15 +135,14 @@ public class SignUpActivity extends AppCompatActivity {
         String username = usernameField.getEditableText().toString();
         String email = emailField.getEditableText().toString();
         String password = passwordField.getEditableText().toString();
-        String phoneNumber = "";
-        String isLoggedIn = "";
+        String phoneNumber = phoneNumberField.getEditableText().toString();
 
-        UserDetails userDetails = new UserDetails(name, username, email, password, phoneNumber, true);
+        User user = new User(name, username, email, password, phoneNumber, true);
 
         try {
-            UserHelper.validateUser(userDetails);
+            UserHelper.validateUser(user);
             hideMessageTextView();
-            registerUser(userDetails);
+            registerUser(user);
             accountCreatedSuccessfully();
         } catch (UserException exception) {
             displayMessageTextView(exception.getMessage());
@@ -128,7 +152,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private void registerUser(UserDetails user){
+    private void registerUser(User user){
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(user.getEmail(), user.getPassword())
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
@@ -140,7 +164,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     .addOnCompleteListener(task1 -> {
                                         if (task1.isSuccessful()) {
                                             Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_LONG).show();
-                                            startActivity(new Intent(SignUpActivity.this, MainActivity.class));
+                                            startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
                                             finish();
                                         } else {
                                             Toast.makeText(SignUpActivity.this, "Failed to register", Toast.LENGTH_LONG).show();
@@ -170,6 +194,7 @@ public class SignUpActivity extends AppCompatActivity {
         nameField.setText("");
         usernameField.setText("");
         emailField.setText("");
+        passwordField.setText("");
         passwordField.setText("");
         displayMessageTextView("Account created successfully!");
     }

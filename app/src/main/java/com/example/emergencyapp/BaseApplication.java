@@ -3,8 +3,7 @@ package com.example.emergencyapp;
 import android.app.Application;
 import android.util.Log;
 
-import com.example.emergencyapp.utils.UserDetails;
-import com.example.emergencyapp.utils.UserHelper;
+import com.example.emergencyapp.utils.User;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,7 +32,7 @@ public class BaseApplication extends Application {
                 databaseReference.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        UserDetails userProfile = dataSnapshot.getValue(UserDetails.class);
+                        User userProfile = dataSnapshot.getValue(User.class);
                         userProfile.setLoggedIn(preferences.getLoginDetails().isLoggedIn());
                         if (userProfile != null) {
                             preferences.saveLoginDetails(userProfile);

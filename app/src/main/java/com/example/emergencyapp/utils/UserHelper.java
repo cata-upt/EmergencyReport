@@ -4,11 +4,11 @@ import com.example.emergencyapp.exceptions.UserException;
 
 public class UserHelper {
 
-    public static boolean validateUser(UserDetails userDetails) throws UserException {
-        return validateName(userDetails.getName()) &&
-                validateUsername(userDetails.getUsername()) &&
-                validateEmail(userDetails.getEmail()) &&
-                validatePassword(userDetails.getPassword());
+    public static boolean validateUser(User user) throws UserException {
+        return validateName(user.getName()) &&
+                validateUsername(user.getUsername()) &&
+                validateEmail(user.getEmail()) &&
+                validatePassword(user.getPassword());
     }
 
     private static boolean validateName(String name) throws UserException {

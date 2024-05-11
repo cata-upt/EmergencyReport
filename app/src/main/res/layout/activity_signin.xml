@@ -2,7 +2,9 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activities.SignInActivity">
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -29,14 +31,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:text="Username"
-                android:gravity="left"
-                android:paddingLeft="10dp"
+                android:text="@string/username"
+                android:gravity="start"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:paddingTop="10dp"/>
             <EditText
                 android:id="@+id/usernameEditTextLogin"
                 style="@style/EditTextTheme"
-                android:hint="Username"
+                android:hint="@string/username"
                 android:inputType="textEmailAddress"
                 />
 
@@ -45,14 +48,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:text="Password"
-                android:gravity="left"
-                android:paddingLeft="10dp"
+                android:text="@string/password"
+                android:gravity="start"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:paddingTop="10dp"/>
             <EditText
                 android:id="@+id/loginPasswordEditText"
                 style="@style/EditTextTheme"
-                android:hint="Password"
+                android:hint="@string/password"
                 app:layout_constraintTop_toBottomOf="@id/emailEditText"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -72,7 +76,7 @@
                 android:id="@+id/loginButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Log in"
+                android:text="@string/sign_in"
                 app:layout_constraintTop_toBottomOf="@id/signupPasswordEditText"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -88,7 +92,6 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="16dp">
 
-            <!-- TextView for "Sign up" -->
             <TextView
                 android:id="@+id/signUpText"
                 android:layout_width="wrap_content"
@@ -96,17 +99,17 @@
                 android:text="@string/signup_text"
                 android:textStyle="bold" />
 
-            <!-- TextView for "Sign in", clickable -->
             <TextView
                 android:id="@+id/signUpTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sign up"
+                android:text="@string/sign_up"
                 android:textColor="@color/accent_color_third"
                 android:textStyle="bold"
                 android:clickable="true"
                 android:focusable="true"
-                android:paddingStart="8dp"/>
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"/>
         </LinearLayout>
     </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

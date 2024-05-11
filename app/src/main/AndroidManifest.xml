@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -21,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EmergencyApp"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCrZV2P5rZn5db1uLgPQJRyNi65sNO_4mI"/>
         <activity
             android:name=".activities.MainActivity"
             android:exported="true">
@@ -42,6 +44,8 @@
         <activity android:name=".activities.SignInActivity"
             android:exported="false"/>
         <activity android:name=".activities.ProfileActivity"
+            android:exported="false"/>
+        <activity android:name=".activities.MapActivity"
             android:exported="false"/>
     </application>
 </manifest>
