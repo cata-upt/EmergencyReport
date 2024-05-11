@@ -7,18 +7,21 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.utils.ImageUtils;
-import com.example.emergencyapp.utils.UserDetails;
+import com.example.emergencyapp.utils.User;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -34,32 +37,36 @@ public class ProfileActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
 
-    TextView personName, changeNameTextView, changePictureTextView, changePhoneNumberTextView;
+    TextView personName, changeNameTextView, changePictureTextView, changePhoneNumberTextView, locationTextView;
 
     Button logoutButton;
 
     UserSessionManager userSession;
     FirebaseUser user;
-    UserDetails userDetails;
+    User userDetails;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_profile);
+        Toolbar myToolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
         user = FirebaseAuth.getInstance().getCurrentUser();
         userSession = new UserSessionManager(getApplicationContext());
         userDetails = userSession.getLoginDetails();
-        Log.i("Profile", "onCreate: userDetails"+userDetails.toString());
+        Log.i("Profile", "onCreate: userDetails"+ user.toString());
         if(!userDetails.isLoggedIn()){
             Intent intent = new Intent(ProfileActivity.this, SignInActivity.class);
             startActivity(intent);
             finish();
         }
 
-        setContentView(R.layout.activity_profile);
         personName = findViewById(R.id.person_name);
         changeNameTextView = findViewById(R.id.changeNameTextView);
         changePictureTextView = findViewById(R.id.changePictureTextView);
         changePhoneNumberTextView = findViewById(R.id.changePhoneNumberTextView);
+        locationTextView = findViewById(R.id.locationTextView);
         logoutButton = findViewById(R.id.logout_button);
 
         try {
@@ -73,6 +80,25 @@ public class ProfileActivity extends AppCompatActivity {
         changeNameTextView.setOnClickListener(v->showChangeNameDialog());
         changePictureTextView.setOnClickListener(v->pickImage());
         changePhoneNumberTextView.setOnClickListener(v->showChangePhoneNumberDialog());
+        locationTextView.setOnClickListener(v->showMapActivity());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.navigation_menu, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            Intent i = new Intent(ProfileActivity.this, SettingsActivity.class);
+            startActivity(i);
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     public void pickImage() {
@@ -179,8 +205,8 @@ public class ProfileActivity extends AppCompatActivity {
         databaseReference.child(user.getUid()).child("username").setValue(newUsername)
                 .addOnSuccessListener(aVoid -> Log.d("Update Username", "Username updated successfully!"))
                 .addOnFailureListener(e -> Log.d("Update Username", "Failed to update username", e));
-        userDetails.setUsername(newUsername);
-        userSession.saveLoginDetails(userDetails);
+        this.userDetails.setUsername(newUsername);
+        userSession.saveLoginDetails(this.userDetails);
         Toast.makeText(getApplicationContext(), "Username changed successfully!", Toast.LENGTH_SHORT).show();
         personName.setText(userSession.getLoginDetails().getUsername());
     }
@@ -191,8 +217,8 @@ public class ProfileActivity extends AppCompatActivity {
         databaseReference.child(user.getUid()).child("phoneNumber").setValue(newPhoneNumber)
                 .addOnSuccessListener(aVoid -> Log.d("Update phone number", "Phone number updated successfully!"))
                 .addOnFailureListener(e -> Log.d("Update phone number", "Failed to update phone number", e));
-        userDetails.setPhoneNumber(newPhoneNumber);
-        userSession.saveLoginDetails(userDetails);
+        this.userDetails.setPhoneNumber(newPhoneNumber);
+        userSession.saveLoginDetails(this.userDetails);
         Toast.makeText(getApplicationContext(), "Phone number changed successfully!", Toast.LENGTH_SHORT).show();
     }
 
@@ -200,6 +226,12 @@ public class ProfileActivity extends AppCompatActivity {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
         databaseReference.child("profileImageUrl").setValue(imageUrl);
         retrieveProfilePictureFromStorage();
+    }
+
+    private void showMapActivity() {
+        Intent i = new Intent(ProfileActivity.this, MapActivity.class);
+        startActivity(i);
+        finish();
     }
 
     private void retrieveProfilePictureFromStorage(){

@@ -3,7 +3,7 @@
     <string name="action_settings">Settings\n</string>
     <string name="default_emergency_text_replacer">Enter your text here</string>
     <string name="emergency_text_title">Set emergency text</string>
-    <string name="default_emergency_text">I have an emergency at address: </string>
+    <string name="default_emergency_text">I have an emergency. Last location is: </string>
     <string name="add_contact">Add emergency contact</string>
     <string name="contact_pick_text">Add contact</string>
     <string name="contact_delete_text">Delete contact</string>
@@ -22,5 +22,17 @@
     <string name="change_phone_number_submit_button">Change phone number.</string>
     <string name="change_phone_number_hint">Change phone number</string>
     <string name="contact_name">Contact name</string>
+    <string name="address_not_available">Address not available</string>
+    <string name="location_activity">See location</string>
+    <string name="phone_number_signup">Phone Number</string>
+    <string name="email_signup">Email</string>
+    <string name="username">Username</string>
+    <string name="name_signup">Name</string>
+    <string name="register">Register</string>
+    <string name="sign_in">Sign in</string>
+    <string name="password">Password</string>
+    <string name="sign_up">Sign up</string>
+    <string name="enter_friend_s_phone_number">Enter friend\'s phone number</string>
+    <string name="add_friend">Add Friend</string>
 
 </resources>

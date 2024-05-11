@@ -1,5 +1,6 @@
 package com.example.emergencyapp.utils;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -11,29 +12,39 @@ import android.os.Bundle;
 import android.util.Log;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.emergencyapp.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
-public class LocationStatusListener implements LocationListener{
+public class LocationStatusListener implements LocationListener {
 
     private static final long MIN_TIME = 10; // Minimum time interval for location updates (in milliseconds)
     private static final float MIN_DISTANCE = 2; // Minimum distance for location updates (in meters)
 
     private Context context;
     private LocationManager locationManager;
-    private Location currentLocation;
+    private UserLocation currentLocation;
     private FirebaseUser user;
     private LocationStatusHandler locationStatusHandler;
 
-    private static String TAG="EmergencyCall";
+    private static String TAG = "EmergencyCall";
 
     public LocationStatusListener(Context context, FirebaseUser user, LocationStatusHandler locationStatusHandler) {
         this.context = context;
@@ -48,28 +59,44 @@ public class LocationStatusListener implements LocationListener{
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    // Request location permission at runtime
-
-    // Check if location services (GPS) are enabled
-    private boolean isLocationProviderEnabled() {
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
-
-    // Request location updates
     public void requestLocationUpdates() {
-        if (hasLocationPermission() && isLocationProviderEnabled()) {
+        if (hasLocationPermission()) {
             if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    MIN_TIME,
-                    MIN_DISTANCE,
-                    this,
-                    Looper.getMainLooper()
-            );
+            getLastKnownLocation();
+
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, this, Looper.getMainLooper());
+            }
+
+            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this, Looper.getMainLooper());
+            }
         } else {
             Log.d(TAG, "Location updates not requested. Permission or provider not available.");
+            retrieveLocationFromFirebase();
+        }
+    }
+
+    private void getLastKnownLocation() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location lastKnownLocationNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Location bestLastKnownLocation = null;
+
+        if (lastKnownLocationGPS != null && lastKnownLocationNetwork != null) {
+            bestLastKnownLocation = lastKnownLocationGPS.getTime() > lastKnownLocationNetwork.getTime() ? lastKnownLocationGPS : lastKnownLocationNetwork;
+        } else if (lastKnownLocationGPS != null) {
+            bestLastKnownLocation = lastKnownLocationGPS;
+        } else if (lastKnownLocationNetwork != null) {
+            bestLastKnownLocation = lastKnownLocationNetwork;
+        }
+
+        if (bestLastKnownLocation != null) {
+            updateLocationInFirebase(bestLastKnownLocation);
         }
     }
 
@@ -78,17 +105,43 @@ public class LocationStatusListener implements LocationListener{
     }
 
     public String getAddressFromLocation() {
-        if (currentLocation != null) {
-            return getAddressFromLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
-        } else {
-            return null;
+        if (currentLocation == null) {
+            retrieveLocationFromFirebase();
         }
+        return getAddressFromLocation(currentLocation);
     }
 
-    private String getAddressFromLocation(double latitude, double longitude) {
+    public void retrieveLocationFromFirebase() {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        DatabaseReference locationRef = databaseReference.child(user.getUid()).child("location");
+
+        locationRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    UserLocation userLocation = dataSnapshot.getValue(UserLocation.class);
+
+                    if (userLocation != null) {
+                        currentLocation = userLocation;
+                    } else {
+                        Log.d(TAG, "Location data incomplete");
+                    }
+                } else {
+                    Log.d(TAG, "Location data not found in Firebase");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG, "Failed to read location from Firebase", databaseError.toException());
+            }
+        });
+    }
+
+    private String getAddressFromLocation(UserLocation location) {
         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
         try {
-            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             if (addresses != null && addresses.size() > 0) {
                 Address address = addresses.get(0);
                 StringBuilder addressStringBuilder = new StringBuilder();
@@ -103,26 +156,42 @@ public class LocationStatusListener implements LocationListener{
                     addressStringBuilder.append(cleanedLine).append(", ");
                 }
                 // Remove the trailing comma and space
-                return addressStringBuilder.toString().replaceAll(", $", "");
+                Date date = new Date(location.getTime());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                return addressStringBuilder.toString().replaceAll(", $", "") + " at " + sdf.format(date);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.e(TAG, "Error getting address from location", e);
         }
-        return "Address not available";
+        return context.getString(R.string.address_not_available);
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        currentLocation = location;
+        currentLocation = new UserLocation(location.getLatitude(), location.getLongitude(), location.getTime(), location.getAccuracy(), location.getAltitude(), location.getSpeed());
         Log.d(TAG, "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude());
         updateLocationInFirebase(location);
     }
 
     private void updateLocationInFirebase(Location location) {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-        databaseReference.child(user.getUid()).setValue(location)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Location updated in Firebase successfully"))
-                .addOnFailureListener(e -> Log.e(TAG, "Failed to update location in Firebase", e));
+        if (user == null) {
+            user = FirebaseAuth.getInstance().getCurrentUser();
+        }
+        if (user != null) {
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+
+            UserLocation userLocation = new UserLocation();
+            userLocation.setLatitude(location.getLatitude());
+            userLocation.setLongitude(location.getLongitude());
+            userLocation.setAltitude(location.getAltitude());
+            userLocation.setTime(location.getTime());
+            userLocation.setSpeed(location.hasSpeed() ? location.getSpeed() : null);
+            userLocation.setAccuracy(location.hasAccuracy() ? location.getAccuracy() : null);
+
+            databaseReference.child(user.getUid()).child("location").setValue(userLocation)
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Location updated in Firebase successfully"))
+                    .addOnFailureListener(e -> Log.e(TAG, "Failed to update location in Firebase", e));
+        }
     }
 
     @Override

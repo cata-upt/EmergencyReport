@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".activities.ProfileActivity">
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -46,6 +47,7 @@
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="@string/person_name"
+                android:textColor="@color/black"
                 android:textSize="35sp"/>
 
             <View style="@style/Divider"/>
@@ -59,6 +61,7 @@
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="@string/change_name"
+                android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
 
@@ -73,6 +76,7 @@
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="@string/change_profile_picture"
+                android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -87,6 +91,22 @@
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="@string/change_phone_number"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+            <View style="@style/Divider"/>
+
+            <TextView
+                android:id="@+id/locationTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/location_activity"
+                android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
 

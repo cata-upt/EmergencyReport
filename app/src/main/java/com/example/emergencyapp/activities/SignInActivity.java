@@ -3,17 +3,18 @@ package com.example.emergencyapp.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.emergencyapp.R;
-import com.example.emergencyapp.utils.PasswordCryptUtils;
-import com.example.emergencyapp.utils.UserDetails;
-import com.example.emergencyapp.utils.UserHelper;
+import com.example.emergencyapp.utils.User;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -42,6 +43,8 @@ public class SignInActivity extends AppCompatActivity {
         userSession = new UserSessionManager(getApplicationContext());
 
         setContentView(R.layout.activity_signin);
+        Toolbar myToolbar = findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
 
         usernameField = findViewById(R.id.usernameEditTextLogin);
         passwordField = findViewById(R.id.loginPasswordEditText);
@@ -59,6 +62,24 @@ public class SignInActivity extends AppCompatActivity {
 
         setFocusChangeListener(usernameField, usernameLabel);
         setFocusChangeListener(passwordField, passwordLabel);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.navigation_menu, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            Intent i = new Intent(SignInActivity.this, SettingsActivity.class);
+            startActivity(i);
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     private void signUpActivity() {
@@ -93,7 +114,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
 
-    private void updateUI(FirebaseUser user) {
+    private void updateUI(User user) {
         if (user != null) {
             Intent intent = new Intent(SignInActivity.this, ProfileActivity.class);
             startActivity(intent);
@@ -110,12 +131,12 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    UserDetails userDetails = dataSnapshot.getValue(UserDetails.class);
-                    if (userDetails != null) {
-                        userDetails.setLoggedIn(true);
-                        userSession.saveLoginDetails(userDetails);
+                    User user = dataSnapshot.getValue(User.class);
+                    if (user != null) {
+                        user.setLoggedIn(true);
+                        userSession.saveLoginDetails(user);
                         updateUI(user);
-                        Log.d("FirebaseData", "User" + userDetails);
+                        Log.d("FirebaseData", "User" + user);
                     } else {
                         Log.d("FirebaseData", "User does not exist.");
                     }

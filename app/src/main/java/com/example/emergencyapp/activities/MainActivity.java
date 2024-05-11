@@ -69,8 +69,18 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
         } else {
             startLocationUpdates();
         }
-
         locationListener = new LocationStatusListener(this, user, this);
+        locationListener.requestLocationUpdates();
+
+        if(user == null) {
+            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "For a better experience we recommend to sign into your account.", Snackbar.LENGTH_LONG)
+                    .setAction("SIGN IN", v -> {
+                        Intent i =new Intent(MainActivity.this, SignInActivity.class);
+                        startActivity(i);
+                        finish();
+                    });
+            showSnackbar(snackbar);
+        }
     }
 
     @Override
@@ -111,23 +121,23 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String emergencyText = sharedPreferences.getString("emergency_text", "");
-        String location = getLocation();
-        if (location!=null) {
-            emergencyText += " " + location;
 
-            if (checkSmsPermissions()) {
-                sendTextToContacts(emergencyText);
-            } else {
-                requestSmsPermissions();
-                showSmsPermissionSnackbar();
-            }
+        String location = getLocation();
+        emergencyText += " " + location;
+
+        if (checkSmsPermissions()) {
+            sendTextToContacts(emergencyText);
+        } else {
+            requestSmsPermissions();
+            showSmsPermissionSnackbar();
         }
+
     }
 
     private String getLocation(){
         String location = locationListener.getAddressFromLocation();
 
-        if (location == null) {
+        if (location.equals(getApplicationContext().getString(R.string.address_not_available))) {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestLocationPermissions();
                 Toast.makeText(getApplicationContext(), "Please give location permission.", Toast.LENGTH_SHORT).show();
@@ -142,45 +152,56 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
     private void sendTextToContacts(String emergencyText){
         ArrayList<Contact> contacts = Contact.loadContactsFromPreferences(this);
         SmsManager smsManager = SmsManager.getDefault();
-        for (Contact c : contacts) {
-            try {
-                PendingIntent sentIntent = PendingIntent.getBroadcast(
-                        getApplicationContext(),
-                        0,
-                        new Intent("SMS_SENT"),
-                        PendingIntent.FLAG_IMMUTABLE
-                );
-                smsManager.sendTextMessage(c.getPhoneNumber(), null, emergencyText, sentIntent, null);
-                Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
-                Log.i(TAG, "sendTextToContacts: "+emergencyText);
-            } catch (Exception e) {
-                Log.e("EmergencyCall", "sendTextToContacts: ", e);
-                Toast.makeText(getApplicationContext(), "Something went wrong!", Toast.LENGTH_LONG).show();
-            }
-        }
-        registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                switch (getResultCode()) {
-                    case Activity.RESULT_OK:
-                        // Message sent successfully
-                        Log.i(TAG, "SMS sent successfully");
-                        break;
-                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                        Log.e(TAG, "SMS sending failed - Generic failure");
-                        break;
-                    case SmsManager.RESULT_ERROR_RADIO_OFF:
-                        Log.e(TAG, "SMS sending failed - radio off");
-                        break;
-                    case SmsManager.RESULT_ERROR_NULL_PDU:
-                        Log.e(TAG, "SMS sending failed - no PDU defined");
-                        break;
-                    case SmsManager.RESULT_ERROR_NO_SERVICE:
-                        Log.e(TAG, "SMS sending failed - no service");;
-                        break;
+        if(contacts != null) {
+            for (Contact c : contacts) {
+                try {
+                    PendingIntent sentIntent = PendingIntent.getBroadcast(
+                            getApplicationContext(),
+                            0,
+                            new Intent("SMS_SENT"),
+                            PendingIntent.FLAG_IMMUTABLE
+                    );
+                    smsManager.sendTextMessage(c.getPhoneNumber(), null, emergencyText, sentIntent, null);
+                    Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
+                    Log.i(TAG, "sendTextToContacts: " + emergencyText);
+                } catch (Exception e) {
+                    Log.e("EmergencyCall", "sendTextToContacts: ", e);
+                    Toast.makeText(getApplicationContext(), "Something went wrong!", Toast.LENGTH_LONG).show();
                 }
             }
-        }, new IntentFilter("SMS_SENT"));
+            registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    switch (getResultCode()) {
+                        case Activity.RESULT_OK:
+                            // Message sent successfully
+                            Log.i(TAG, "SMS sent successfully");
+                            break;
+                        case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                            Log.e(TAG, "SMS sending failed - Generic failure");
+                            break;
+                        case SmsManager.RESULT_ERROR_RADIO_OFF:
+                            Log.e(TAG, "SMS sending failed - radio off");
+                            break;
+                        case SmsManager.RESULT_ERROR_NULL_PDU:
+                            Log.e(TAG, "SMS sending failed - no PDU defined");
+                            break;
+                        case SmsManager.RESULT_ERROR_NO_SERVICE:
+                            Log.e(TAG, "SMS sending failed - no service");
+                            ;
+                            break;
+                    }
+                }
+            }, new IntentFilter("SMS_SENT"));
+        }else {
+             Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "You should have at least a contact in your list.", Snackbar.LENGTH_LONG)
+                    .setAction("ADD CONTACT", v -> {
+                        Intent intent = new Intent(MainActivity.this, AddContactActivity.class);
+                        startActivity(intent);
+                        finish();
+                    });
+            showSnackbar(snackbar);
+        }
     }
 
 
@@ -208,16 +229,8 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
                 .setAction("GRANT", v -> {
                     requestSmsPermissions();
                 });
-        View snackBarView = snackbar.getView();
-        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.accent_color));
 
-        TextView textView = snackBarView.findViewById(com.google.android.material.R.id.snackbar_text);
-        textView.setTextColor(ContextCompat.getColor(this, android.R.color.black));
-
-        Button actionButton = snackBarView.findViewById(com.google.android.material.R.id.snackbar_action);
-        actionButton.setTextColor(ContextCompat.getColor(this, R.color.black));
-
-        snackbar.show();
+        showSnackbar(snackbar);
     }
 
 
@@ -244,7 +257,6 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
             }
         }
     }
-
     private void showLocationSnackbar() {
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Location services are required for this app. Please enable GPS.", Snackbar.LENGTH_LONG)
                 .setAction("ENABLE", v -> {
@@ -252,16 +264,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
                     startActivity(intent);
                 });
 
-        View snackBarView = snackbar.getView();
-        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.accent_color));
-
-        TextView textView = snackBarView.findViewById(com.google.android.material.R.id.snackbar_text);
-        textView.setTextColor(ContextCompat.getColor(this, android.R.color.black));
-
-        Button actionButton = snackBarView.findViewById(com.google.android.material.R.id.snackbar_action);
-        actionButton.setTextColor(ContextCompat.getColor(this, R.color.black));
-
-        snackbar.show();
+        showSnackbar(snackbar);
     }
 
     private void showPermissionSnackbar() {
@@ -271,6 +274,10 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
                     requestLocationPermissions();
                 });
 
+        showSnackbar(snackbar);
+    }
+
+    private void showSnackbar(Snackbar snackbar){
         View snackBarView = snackbar.getView();
         snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.accent_color));
 
@@ -291,9 +298,9 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
     @Override
     public void onGPSEnabled() {
         if (checkLocationPermissions()) {
-            requestLocationPermissions();
-        } else {
             startLocationUpdates();
+        } else {
+            requestLocationPermissions();
         }
     }
 }

@@ -1,15 +1,15 @@
 package com.example.emergencyapp.utils;
 
-public class UserDetails {
+public class User {
 
     private String name,  username, email, password, phoneNumber;
 
     private Boolean loggedIn;
 
-    public UserDetails() {
+    public User() {
     }
 
-    public UserDetails(String name, String username, String email, String password, String phoneNumber, Boolean loggedIn) {
+    public User(String name, String username, String email, String password, String phoneNumber, Boolean loggedIn) {
         this.username = username;
         this.phoneNumber = phoneNumber;
         this.name = name;
