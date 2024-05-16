@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencyapp.R;
+import com.example.emergencyapp.utils.DatabaseConnectionUtils;
 import com.example.emergencyapp.utils.ImageUtils;
 import com.example.emergencyapp.utils.User;
 import com.example.emergencyapp.utils.UserSessionManager;
@@ -37,13 +38,14 @@ public class ProfileActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
 
-    TextView personName, changeNameTextView, changePictureTextView, changePhoneNumberTextView, locationTextView;
+    TextView personName, changeNameTextView, changePictureTextView, changePhoneNumberTextView, locationTextView, friendsTextView;
 
     Button logoutButton;
 
     UserSessionManager userSession;
     FirebaseUser user;
     User userDetails;
+    DatabaseConnectionUtils databaseConnectionUtils;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -52,10 +54,10 @@ public class ProfileActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+        databaseConnectionUtils = new DatabaseConnectionUtils();
         user = FirebaseAuth.getInstance().getCurrentUser();
         userSession = new UserSessionManager(getApplicationContext());
         userDetails = userSession.getLoginDetails();
-        Log.i("Profile", "onCreate: userDetails"+ user.toString());
         if(!userDetails.isLoggedIn()){
             Intent intent = new Intent(ProfileActivity.this, SignInActivity.class);
             startActivity(intent);
@@ -67,6 +69,7 @@ public class ProfileActivity extends AppCompatActivity {
         changePictureTextView = findViewById(R.id.changePictureTextView);
         changePhoneNumberTextView = findViewById(R.id.changePhoneNumberTextView);
         locationTextView = findViewById(R.id.locationTextView);
+        friendsTextView = findViewById(R.id.friendsTextView);
         logoutButton = findViewById(R.id.logout_button);
 
         try {
@@ -81,6 +84,7 @@ public class ProfileActivity extends AppCompatActivity {
         changePictureTextView.setOnClickListener(v->pickImage());
         changePhoneNumberTextView.setOnClickListener(v->showChangePhoneNumberDialog());
         locationTextView.setOnClickListener(v->showMapActivity());
+        friendsTextView.setOnClickListener(v->showFriendsListActivity());
     }
 
     @Override
@@ -199,6 +203,11 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    private void showFriendsListActivity() {
+        Intent intent = new Intent(ProfileActivity.this, FriendsListActivity.class);
+        startActivity(intent);
+    }
+
     private void updateUserName(FirebaseUser user, String newUsername) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
 
@@ -212,13 +221,16 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void updatePhoneNumber(FirebaseUser user, String newPhoneNumber){
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        try {
+            databaseConnectionUtils.savePhoneNumberUserDetails(user, firebaseDatabase.getReference("Users"), newPhoneNumber);
+            databaseConnectionUtils.savePhoneNumberUid(user, firebaseDatabase.getReference("phone_to_uid"), newPhoneNumber);
+            this.userDetails.setPhoneNumber(newPhoneNumber);
+            userSession.saveLoginDetails(this.userDetails);
+        }catch (RuntimeException e){
+            Log.e("Update phone number", "Failed to update the phone number in the database", e);
+        }
 
-        databaseReference.child(user.getUid()).child("phoneNumber").setValue(newPhoneNumber)
-                .addOnSuccessListener(aVoid -> Log.d("Update phone number", "Phone number updated successfully!"))
-                .addOnFailureListener(e -> Log.d("Update phone number", "Failed to update phone number", e));
-        this.userDetails.setPhoneNumber(newPhoneNumber);
-        userSession.saveLoginDetails(this.userDetails);
         Toast.makeText(getApplicationContext(), "Phone number changed successfully!", Toast.LENGTH_SHORT).show();
     }
 

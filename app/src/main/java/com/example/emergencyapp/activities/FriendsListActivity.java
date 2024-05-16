@@ -1,7 +1,11 @@
 package com.example.emergencyapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,18 +28,31 @@ import java.util.List;
 public class FriendsListActivity extends AppCompatActivity{
     private FriendsAdapter adapter;
     private List<User> friendsList = new ArrayList<>();
-
+    TextView messageTextView;
+    Button addFriendButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends_list);
+        messageTextView = findViewById(R.id.emptyListMessage);
+        addFriendButton = findViewById(R.id.addFriendButton);
 
         RecyclerView recyclerView = findViewById(R.id.friends_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new FriendsAdapter(friendsList);
+        adapter = new FriendsAdapter(FriendsListActivity.this, friendsList);
         recyclerView.setAdapter(adapter);
 
         fetchFriends();
+        if(friendsList.size() == 0){
+            messageTextView.setVisibility(View.VISIBLE);
+            addFriendButton.setVisibility(View.VISIBLE);
+        }
+        addFriendButton.setOnClickListener(v->showAddFriendsActivity());
+    }
+
+    private void showAddFriendsActivity() {
+        Intent intent = new Intent(FriendsListActivity.this, AddFriendActivity.class);
+        startActivity(intent);
     }
 
     private void fetchFriends() {
