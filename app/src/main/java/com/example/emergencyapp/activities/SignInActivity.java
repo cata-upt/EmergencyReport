@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.emergencyapp.BaseApplication;
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.utils.User;
 import com.example.emergencyapp.utils.UserSessionManager;
@@ -135,6 +136,7 @@ public class SignInActivity extends AppCompatActivity {
                     if (user != null) {
                         user.setLoggedIn(true);
                         userSession.saveLoginDetails(user);
+                        registerUserDeviceToken();
                         updateUI(user);
                         Log.d("FirebaseData", "User" + user);
                     } else {
@@ -170,5 +172,9 @@ public class SignInActivity extends AppCompatActivity {
         if (loginTextView.getVisibility() == View.VISIBLE) {
             loginTextView.setVisibility(View.GONE);
         }
+    }
+
+    private void registerUserDeviceToken(){
+        ((BaseApplication) getApplicationContext()).obtainFirebaseToken();
     }
 }

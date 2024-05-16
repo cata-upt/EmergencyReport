@@ -181,22 +181,19 @@ public class AddContactActivity extends AppCompatActivity {
     private String getContactID(Intent data){
         Uri contactUri = data.getData();
 
-        // Specify which fields you want
-        // your query to return values for
         String[] queryFields = new String[]{ContactsContract.Contacts._ID};
 
 
-        // Perform your query - the contactUri
         // is like a "where" clause here
         Cursor cursor = this.getContentResolver()
                 .query(contactUri, queryFields, null, null, null);
 
         String contactID=null;
 
-        if(cursor.moveToFirst()) {
+        if(cursor != null && cursor.moveToFirst()) {
             contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+            cursor.close();
         }
-        cursor.close();
 
         return contactID;
     }

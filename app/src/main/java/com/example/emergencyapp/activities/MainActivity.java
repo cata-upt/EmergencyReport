@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.SmsManager;
@@ -24,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
@@ -36,6 +38,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class MainActivity extends AppCompatActivity implements LocationStatusHandler {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
@@ -49,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
     private static String TAG = "EmergencyReport";
 
     private FirebaseUser user;
+
+    private Queue<Snackbar> snackbarQueue = new LinkedList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +86,10 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
                         finish();
                     });
             showSnackbar(snackbar);
+        }
+        boolean areNotificationsEnabled = NotificationManagerCompat.from(getApplicationContext()).areNotificationsEnabled();
+        if(!areNotificationsEnabled){
+            showNotificationSnackBar();
         }
     }
 
@@ -276,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
 
         showSnackbar(snackbar);
     }
-
+    private boolean isShowing = false;
     private void showSnackbar(Snackbar snackbar){
         View snackBarView = snackbar.getView();
         snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.accent_color));
@@ -287,8 +297,30 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
         Button actionButton = snackBarView.findViewById(com.google.android.material.R.id.snackbar_action);
         actionButton.setTextColor(ContextCompat.getColor(this, R.color.black));
 
-        snackbar.show();
+        snackbar.addCallback(new Snackbar.Callback() {
+            @Override
+            public void onDismissed(Snackbar snackbar, int event) {
+                if (!snackbarQueue.isEmpty()) {
+                    Snackbar next = snackbarQueue.poll();
+                    next.show();
+                }
+            }
+        });
+
+        snackbarQueue.add(snackbar);
+        if (!isShowing) {
+            showNext();
+        }
     }
+
+    private void showNext() {
+        if (!snackbarQueue.isEmpty() && !isShowing) {
+            Snackbar next = snackbarQueue.poll();
+            next.show();
+            isShowing = true;
+        }
+    }
+
 
     @Override
     public void onGPSDisabled() {
@@ -302,5 +334,28 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
         } else {
             requestLocationPermissions();
         }
+    }
+
+    public void showNotificationSnackBar(){
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "For the best experience please allow notifications for this app.", Snackbar.LENGTH_LONG)
+                .setAction("Allow", v -> {
+                    // Request location permissions again
+                    askNotificationPermission();
+                });
+
+        showSnackbar(snackbar);
+    }
+
+    public void askNotificationPermission(){
+        Intent intent = new Intent();
+        intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            intent.putExtra("android.provider.extra.APP_PACKAGE", getPackageName());
+        }else {
+            intent.putExtra("app_package", getPackageName());
+            intent.putExtra("app_uid", getApplicationInfo().uid);
+        }
+        startActivity(intent);
     }
 }

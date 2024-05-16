@@ -2,7 +2,7 @@ package com.example.emergencyapp.utils;
 
 public class User {
 
-    private String name,  username, email, password, phoneNumber;
+    private String name,  username, email, password, phoneNumber, profileImageUrl;
 
     private Boolean loggedIn;
 
@@ -64,6 +64,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     @Override

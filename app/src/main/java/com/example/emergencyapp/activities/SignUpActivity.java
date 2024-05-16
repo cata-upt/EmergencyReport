@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +18,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.exceptions.UserException;
+import com.example.emergencyapp.utils.DatabaseConnectionUtils;
 import com.example.emergencyapp.utils.User;
 import com.example.emergencyapp.utils.UserHelper;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,6 +35,8 @@ public class SignUpActivity extends AppCompatActivity {
     FirebaseDatabase rootNode;
     DatabaseReference reference;
 
+    DatabaseConnectionUtils databaseConnectionUtils;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -42,6 +46,7 @@ public class SignUpActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         findViews();
+        databaseConnectionUtils = new DatabaseConnectionUtils();
 
         signInTextView.setOnClickListener(v -> {
             signInActivity();
@@ -96,9 +101,9 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-    private void findViews(){
-        nameField=findViewById(R.id.nameEditText);
-        usernameField =findViewById(R.id.usernameEditTextRegister);
+    private void findViews() {
+        nameField = findViewById(R.id.nameEditText);
+        usernameField = findViewById(R.id.usernameEditTextRegister);
         emailField = findViewById(R.id.emailEditText);
         passwordField = findViewById(R.id.signupPasswordEditText);
         registerButton = findViewById(R.id.registerButton);
@@ -116,7 +121,7 @@ public class SignUpActivity extends AppCompatActivity {
             if (hasFocus) {
                 label.setVisibility(View.VISIBLE);
                 hideMessageTextView();
-            } else{
+            } else {
                 label.setVisibility(View.INVISIBLE);
             }
         });
@@ -127,7 +132,7 @@ public class SignUpActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void register(){
+    private void register() {
         rootNode = FirebaseDatabase.getInstance();
         reference = rootNode.getReference("Users");
 
@@ -152,20 +157,26 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private void registerUser(User user){
+    private void registerUser(User user) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(user.getEmail(), user.getPassword())
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                         if (firebaseUser != null) {
                             String userId = firebaseUser.getUid();
-                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-                            databaseReference.child(userId).setValue(user)
+                            FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                            firebaseDatabase.getReference("Users").child(userId).setValue(user)
                                     .addOnCompleteListener(task1 -> {
                                         if (task1.isSuccessful()) {
-                                            Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_LONG).show();
-                                            startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
-                                            finish();
+                                            try {
+                                                databaseConnectionUtils.savePhoneNumberUid(firebaseUser, firebaseDatabase.getReference("phone_to_uid"), user.getPhoneNumber());
+                                                Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_LONG).show();
+                                                startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
+                                                finish();
+                                            }catch (RuntimeException e){
+                                                Log.e("Update phone number", "Failed to update phone number to uid", e);
+                                            }
+
                                         } else {
                                             Toast.makeText(SignUpActivity.this, "Failed to register", Toast.LENGTH_LONG).show();
                                         }
@@ -190,7 +201,7 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-    private void accountCreatedSuccessfully(){
+    private void accountCreatedSuccessfully() {
         nameField.setText("");
         usernameField.setText("");
         emailField.setText("");
