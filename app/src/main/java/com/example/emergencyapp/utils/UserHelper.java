@@ -1,6 +1,11 @@
 package com.example.emergencyapp.utils;
 
+import android.util.Log;
+
 import com.example.emergencyapp.exceptions.UserException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class UserHelper {
 
@@ -55,5 +60,17 @@ public class UserHelper {
             }
         }
         return true;
+    }
+
+    public static void retrieveProfilePictureFromStorage(String userId, ProfilePictureCallback callback){
+        String imagePath = "images/" + userId + ".jpg";
+
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+        StorageReference userImageRef = storageRef.child(imagePath);
+        userImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            callback.onCallback(uri.toString());
+        }).addOnFailureListener(exception -> {
+            Log.e("Userhelper", "Failed to load profile picture", exception);
+        });
     }
 }
