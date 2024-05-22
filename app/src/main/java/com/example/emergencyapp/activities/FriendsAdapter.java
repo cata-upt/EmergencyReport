@@ -4,59 +4,41 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import com.bumptech.glide.Glide;
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.utils.User;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
+public class FriendsAdapter extends ArrayAdapter<User> {
 
-    private Context context;
-    private List<User> friends;
+    public FriendsAdapter(Context context, List<User> users) {
+        super(context, 0, users);
+    }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final ImageView imageViewProfile;
-        private final TextView textViewName;
-
-        public ViewHolder(View view) {
-            super(view);
-            imageViewProfile = view.findViewById(R.id.imageViewProfile);
-            textViewName = view.findViewById(R.id.textViewName);
+    @NonNull
+    @Override
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        User user = getItem(position);
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.friend_item_layout, parent, false);
         }
 
-        public void bind(Context context, final User user) {
-            textViewName.setText(user.getName());
-            Glide.with(context)
-                    .load(user.getProfileImageUrl())
-                    .into(imageViewProfile);
-        }
-    }
+        ImageView profileImageView = convertView.findViewById(R.id.imageViewProfileFriend);
+        TextView userNameTextView = convertView.findViewById(R.id.textViewNameFriend);
 
-    public FriendsAdapter(Context context, List<User> friends) {
-        this.context = context;
-        this.friends = friends;
-    }
+        userNameTextView.setText(user.getName());
+        Picasso.get().load(user.getProfileImageUrl())
+                .placeholder(R.drawable.baseline_person_24)
+                .into(profileImageView);
 
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.friend_item_layout, parent, false);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.bind(context, friends.get(position));
-    }
-
-    @Override
-    public int getItemCount() {
-        return friends.size();
+        return convertView;
     }
 }

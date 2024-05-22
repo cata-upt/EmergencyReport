@@ -2,9 +2,11 @@ package com.example.emergencyapp.utils;
 
 public class User {
 
-    private String name,  username, email, password, phoneNumber, profileImageUrl;
+    private String uid, name,  username, email, password, phoneNumber, profileImageUrl;
 
     private Boolean loggedIn;
+
+    private UserLocation userLocation;
 
     public User() {
     }
@@ -84,5 +86,21 @@ public class User {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", loggedIn=" + loggedIn +
                 '}';
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public UserLocation getUserLocation() {
+        return userLocation;
+    }
+
+    public void setUserLocation(UserLocation userLocation) {
+        this.userLocation = userLocation;
     }
 }

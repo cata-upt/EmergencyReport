@@ -2,7 +2,6 @@ package com.example.emergencyapp.activities;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,14 +14,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencyapp.R;
+import com.example.emergencyapp.utils.DatabaseCallback;
 import com.example.emergencyapp.utils.DatabaseConnectionUtils;
-import com.example.emergencyapp.utils.ImageUtils;
 import com.example.emergencyapp.utils.User;
+import com.example.emergencyapp.utils.UserHelper;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,6 +33,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -46,6 +48,7 @@ public class ProfileActivity extends AppCompatActivity {
     FirebaseUser user;
     User userDetails;
     DatabaseConnectionUtils databaseConnectionUtils;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -58,7 +61,7 @@ public class ProfileActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser();
         userSession = new UserSessionManager(getApplicationContext());
         userDetails = userSession.getLoginDetails();
-        if(!userDetails.isLoggedIn()){
+        if (userDetails == null || !userDetails.isLoggedIn()) {
             Intent intent = new Intent(ProfileActivity.this, SignInActivity.class);
             startActivity(intent);
             finish();
@@ -75,16 +78,16 @@ public class ProfileActivity extends AppCompatActivity {
         try {
             personName.setText(userSession.getLoginDetails().getUsername());
             retrieveProfilePictureFromStorage();
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e("ProfileActivity", Objects.requireNonNull(e.getMessage()));
         }
 
-        logoutButton.setOnClickListener(v->logOut());
-        changeNameTextView.setOnClickListener(v->showChangeNameDialog());
-        changePictureTextView.setOnClickListener(v->pickImage());
-        changePhoneNumberTextView.setOnClickListener(v->showChangePhoneNumberDialog());
-        locationTextView.setOnClickListener(v->showMapActivity());
-        friendsTextView.setOnClickListener(v->showFriendsListActivity());
+        logoutButton.setOnClickListener(v -> logOut());
+        changeNameTextView.setOnClickListener(v -> showChangeNameDialog());
+        changePictureTextView.setOnClickListener(v -> pickImage());
+        changePhoneNumberTextView.setOnClickListener(v -> showChangePhoneNumberDialog());
+        locationTextView.setOnClickListener(v -> showMapActivity());
+        friendsTextView.setOnClickListener(v -> showFriendsListActivity());
     }
 
     @Override
@@ -122,17 +125,18 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void uploadImageToFirebase(Uri imageUri) {
-        if(user!=null) {
+        if (user != null) {
             StorageReference storageRef = FirebaseStorage.getInstance().getReference();
             StorageReference profileImageRef = storageRef.child("images/" + user.getUid() + ".jpg");
 
             profileImageRef.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> profileImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         Uri downloadUrl = uri;
-                        Bitmap bmp = ImageUtils.getResizedBitmap(downloadUrl, 50, 50, getContentResolver());
-                        byte[] imgByte = ImageUtils.compressBitmap(bmp, 250);
-                        downloadUrl = ImageUtils.byteArrayToTempUri(getApplicationContext(), imgByte, user.getUid());
-                        updateUserProfilePicture(user, downloadUrl.toString());
+                        //Bitmap bmp = ImageUtils.getResizedBitmap(downloadUrl.toString(), 50, 50);
+                        //todo: resolve bug
+                        //byte[] imgByte = ImageUtils.compressBitmap(bmp, 250);
+                        //downloadUrl = ImageUtils.byteArrayToTempUri(getApplicationContext(), imgByte, user.getUid());
+                        updateUserProfilePicture(user, uri.toString());
                     }))
                     .addOnFailureListener(e -> Toast.makeText(ProfileActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         }
@@ -149,7 +153,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void showChangeNameDialog() {
-        if(user!=null) {
+        if (user != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             LayoutInflater inflater = getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.dialog_change_attributes, null);
@@ -176,7 +180,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void showChangePhoneNumberDialog() {
-        if(user != null) {
+        if (user != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             LayoutInflater inflater = getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.dialog_change_attributes, null);
@@ -220,14 +224,14 @@ public class ProfileActivity extends AppCompatActivity {
         personName.setText(userSession.getLoginDetails().getUsername());
     }
 
-    private void updatePhoneNumber(FirebaseUser user, String newPhoneNumber){
+    private void updatePhoneNumber(FirebaseUser user, String newPhoneNumber) {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         try {
             databaseConnectionUtils.savePhoneNumberUserDetails(user, firebaseDatabase.getReference("Users"), newPhoneNumber);
             databaseConnectionUtils.savePhoneNumberUid(user, firebaseDatabase.getReference("phone_to_uid"), newPhoneNumber);
             this.userDetails.setPhoneNumber(newPhoneNumber);
             userSession.saveLoginDetails(this.userDetails);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             Log.e("Update phone number", "Failed to update the phone number in the database", e);
         }
 
@@ -235,6 +239,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void updateUserProfilePicture(FirebaseUser user, String imageUrl) {
+        Log.i("EmergencyApp", "updateUserProfilePicture: saving image url");
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
         databaseReference.child("profileImageUrl").setValue(imageUrl);
         retrieveProfilePictureFromStorage();
@@ -246,14 +251,10 @@ public class ProfileActivity extends AppCompatActivity {
         finish();
     }
 
-    private void retrieveProfilePictureFromStorage(){
-        String imagePath = "images/" + user.getUid() + ".jpg";
-
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-        StorageReference userImageRef = storageRef.child(imagePath);
-
-        userImageRef.getDownloadUrl().addOnSuccessListener(uri -> loadImageIntoView(uri.toString())).addOnFailureListener(exception -> {
-            Log.e("Profile", "Failed to load profile picture");
+    private void retrieveProfilePictureFromStorage() {
+        UserHelper.retrieveProfilePictureFromStorage(user.getUid(), (DatabaseCallback<String>) uri -> {
+            Log.d("Profile", "Profile picture URL: " + uri);
+            loadImageIntoView(uri);
         });
     }
 

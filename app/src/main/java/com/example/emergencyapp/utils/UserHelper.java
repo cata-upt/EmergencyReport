@@ -1,6 +1,17 @@
 package com.example.emergencyapp.utils;
 
+import android.util.Log;
+
 import com.example.emergencyapp.exceptions.UserException;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
 
 public class UserHelper {
 
@@ -55,5 +66,40 @@ public class UserHelper {
             }
         }
         return true;
+    }
+
+    public static void retrieveProfilePictureFromStorage(String userId, DatabaseCallback callback){
+        String imagePath = "images/" + userId + ".jpg";
+
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+        StorageReference userImageRef = storageRef.child(imagePath);
+        userImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            callback.onCallback(uri.toString());
+        }).addOnFailureListener(exception -> {
+            Log.e("Userhelper", "Failed to load profile picture", exception);
+        });
+    }
+
+    public static void getUserDetails(String userId, DatabaseCallback callback){
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        DatabaseReference userRef = databaseReference.child(userId);
+
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    User friend = dataSnapshot.getValue(User.class);
+                    if (friend != null) {
+                        friend.setUid(userId);
+                        callback.onCallback(friend);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle database error
+            }
+        });
     }
 }
