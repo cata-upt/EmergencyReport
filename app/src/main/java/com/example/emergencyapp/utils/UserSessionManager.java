@@ -3,6 +3,8 @@ package com.example.emergencyapp.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.emergencyapp.entities.User;
+
 public class UserSessionManager {
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;

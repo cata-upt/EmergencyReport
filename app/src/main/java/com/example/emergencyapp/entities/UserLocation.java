@@ -1,4 +1,4 @@
-package com.example.emergencyapp.utils;
+package com.example.emergencyapp.entities;
 
 public class UserLocation {
 

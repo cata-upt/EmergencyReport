@@ -5,13 +5,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.emergencyapp.R;
-import com.example.emergencyapp.utils.UserLocation;
+import com.example.emergencyapp.entities.UserLocation;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;

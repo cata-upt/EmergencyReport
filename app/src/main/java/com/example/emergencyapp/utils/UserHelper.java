@@ -2,6 +2,7 @@ package com.example.emergencyapp.utils;
 
 import android.util.Log;
 
+import com.example.emergencyapp.entities.User;
 import com.example.emergencyapp.exceptions.UserException;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -10,8 +11,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
-import java.util.ArrayList;
 
 public class UserHelper {
 

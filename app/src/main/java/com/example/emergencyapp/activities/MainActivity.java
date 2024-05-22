@@ -29,7 +29,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
-import com.example.emergencyapp.utils.Contact;
+import com.example.emergencyapp.entities.Contact;
 import com.example.emergencyapp.utils.LocationStatusHandler;
 import com.example.emergencyapp.utils.LocationStatusListener;
 import com.example.emergencyapp.R;

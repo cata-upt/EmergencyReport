@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.emergencyapp.R;
-import com.example.emergencyapp.utils.User;
+import com.example.emergencyapp.entities.User;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
