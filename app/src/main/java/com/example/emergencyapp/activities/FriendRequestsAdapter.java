@@ -67,9 +67,9 @@ public class FriendRequestsAdapter extends ArrayAdapter<User> {
     }
 
     private void acceptFriendRequest(FirebaseUser user, String userId) {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-        databaseReference.child(user.getUid()).child("friends").setValue(userId);
-        databaseReference.child(userId).child("friends").setValue(user.getUid());
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Friends");
+        databaseReference.child(user.getUid()).child(userId).setValue(true);
+        databaseReference.child(userId).child(user.getUid()).setValue(true);
     }
 
     private void deleteFriendRequest(FirebaseUser user, String userId) {

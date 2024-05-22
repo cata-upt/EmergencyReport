@@ -36,7 +36,7 @@ public class FriendsAdapter extends ArrayAdapter<User> {
 
         userNameTextView.setText(user.getName());
         Picasso.get().load(user.getProfileImageUrl())
-                .placeholder(R.drawable.ic_launcher_foreground)
+                .placeholder(R.drawable.baseline_person_24)
                 .into(profileImageView);
 
         return convertView;

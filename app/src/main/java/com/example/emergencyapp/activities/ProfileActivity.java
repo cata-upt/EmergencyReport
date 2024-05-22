@@ -2,7 +2,6 @@ package com.example.emergencyapp.activities;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,9 +20,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencyapp.R;
+import com.example.emergencyapp.utils.DatabaseCallback;
 import com.example.emergencyapp.utils.DatabaseConnectionUtils;
-import com.example.emergencyapp.utils.ImageUtils;
-import com.example.emergencyapp.utils.ProfilePictureCallback;
 import com.example.emergencyapp.utils.User;
 import com.example.emergencyapp.utils.UserHelper;
 import com.example.emergencyapp.utils.UserSessionManager;
@@ -35,6 +33,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -253,7 +252,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void retrieveProfilePictureFromStorage() {
-        UserHelper.retrieveProfilePictureFromStorage(user.getUid(), uri -> {
+        UserHelper.retrieveProfilePictureFromStorage(user.getUid(), (DatabaseCallback<String>) uri -> {
             Log.d("Profile", "Profile picture URL: " + uri);
             loadImageIntoView(uri);
         });

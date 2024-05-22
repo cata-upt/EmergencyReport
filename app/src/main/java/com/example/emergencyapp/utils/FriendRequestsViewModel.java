@@ -59,27 +59,10 @@ public class FriendRequestsViewModel extends ViewModel {
     }
 
     private void getUserDetails(String userId) {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-        DatabaseReference userRef = databaseReference.child(userId);
-
-        userRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    User friend = dataSnapshot.getValue(User.class);
-                    if (friend != null) {
-                        friend.setUid(userId);
-                        updateUserList(friend);
-                        friendRequests.setValue(new ArrayList<>(friendRequestsList));
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Handle database error
-            }
-        });
+       UserHelper.getUserDetails(userId, (DatabaseCallback<User>) user->{
+           updateUserList(user);
+           friendRequests.setValue(new ArrayList<>(friendRequestsList));
+       });
     }
 
     private void updateUserList(User friend) {

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,7 +37,7 @@ import java.util.Objects;
 
 public class FriendsFragment extends Fragment {
 
-    private List<User> friendsList = new ArrayList<>();
+    private FriendsViewModel friendsViewModel;
     private ListView friendsListView;
     TextView messageTextView;
     Button addFriendButton;
@@ -48,44 +49,19 @@ public class FriendsFragment extends Fragment {
         messageTextView = view.findViewById(R.id.emptyListMessage);
         addFriendButton = view.findViewById(R.id.addFriendButton);
         friendsListView = view.findViewById(R.id.friends_list);
-        adapter = new FriendsAdapter(getContext(), friendsList);
+        adapter = new FriendsAdapter(getContext(), new ArrayList<>());
         friendsListView.setAdapter(adapter);
-
-        fetchFriends();
-        if(friendsList.size() == 0){
-            messageTextView.setVisibility(View.VISIBLE);
-        }
-        addFriendButton.setOnClickListener(v->showAddFriendsActivity());
+        friendsViewModel = new ViewModelProvider(this).get(FriendsViewModel.class);
+        friendsViewModel.getFriends().observe(getViewLifecycleOwner(), users -> {
+            adapter.clear();
+            adapter.addAll(users);
+            adapter.notifyDataSetChanged();
+            if (users.isEmpty()) {
+                messageTextView.setVisibility(View.VISIBLE);
+            } else {
+                messageTextView.setVisibility(View.GONE);
+            }
+        });
         return view;
-    }
-
-    private void fetchFriends() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null) {
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-            DatabaseReference friendsRef = databaseReference.child(user.getUid()).child("friends");
-
-            friendsRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    friendsList.clear();
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        User friend = snapshot.getValue(User.class);
-                        friendsList.add(friend);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("FriendsListActivity", "Failed to read friends", databaseError.toException());
-                }
-            });
-        }
-    }
-
-    private void showAddFriendsActivity() {
-        Intent intent = new Intent(getContext(), AddFriendActivity.class);
-        startActivity(intent);
     }
 }

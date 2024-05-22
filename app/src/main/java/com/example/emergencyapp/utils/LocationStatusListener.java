@@ -177,7 +177,7 @@ public class LocationStatusListener implements LocationListener {
         if (user == null) {
             user = FirebaseAuth.getInstance().getCurrentUser();
         }
-        if (user != null) {
+        if (user != null && user.getUid() != null) {
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
 
             UserLocation userLocation = new UserLocation();

@@ -26,7 +26,6 @@ public class FriendRequestsFragment extends Fragment {
 
     private FriendRequestsViewModel friendRequestsViewModel;
     private FriendRequestsAdapter adapter;
-    private List<User> friendRequests = new ArrayList<>();
     ListView friendRequestsListView;
     TextView messageTextView;
 
