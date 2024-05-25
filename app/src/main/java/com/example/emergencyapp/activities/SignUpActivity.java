@@ -31,7 +31,7 @@ public class SignUpActivity extends AppCompatActivity {
     EditText nameField, usernameField, emailField, passwordField, phoneNumberField;
     Button registerButton;
     TextView signInTextView, nameLabel, usernameLabel, emailLabel, passwordLabel, phoneNumberLabel;
-
+//todo: make some required
     FirebaseDatabase rootNode;
     DatabaseReference reference;
 

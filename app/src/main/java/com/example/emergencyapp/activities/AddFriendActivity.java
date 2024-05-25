@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import com.example.emergencyapp.BaseApplication;
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.api.ApiService;
+import com.example.emergencyapp.api.utils.ExtraDataNotifications;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
 import com.example.emergencyapp.entities.FriendRequest;
 import com.example.emergencyapp.utils.MessagingService;
@@ -105,7 +106,11 @@ public class AddFriendActivity extends AppCompatActivity {
                     success = false;
                     String token = dataSnapshot.getValue(String.class);
                     if (token != null) {
+                        ExtraDataNotifications extraDataNotifications = new ExtraDataNotifications();
+                        extraDataNotifications.addData("targetActivity", "FriendsListActivity");
+                        extraDataNotifications.addData("fragment", "FriendRequests");
                         NotificationRequestApi notificationRequestApi = new NotificationRequestApi(token, title, body);
+                        notificationRequestApi.setExtraDataNotifications(extraDataNotifications);
                         FriendRequest friendRequest = new FriendRequest(user.getUid(), userId);
                         Retrofit retrofit = new Retrofit.Builder()
                                 .baseUrl(BaseApplication.BASE_URL)

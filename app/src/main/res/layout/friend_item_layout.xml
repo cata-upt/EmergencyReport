@@ -23,8 +23,23 @@
         android:layout_marginStart="16dp"
         android:text="@string/person_name"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="@id/imageViewProfileFriend"
         app:layout_constraintStart_toEndOf="@id/imageViewProfileFriend"
         app:layout_constraintTop_toTopOf="@id/imageViewProfileFriend" />
-
+    <TextView
+        android:id="@+id/lastMessageText"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        android:text="@string/lastmessage"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@id/imageViewProfileFriend"
+        app:layout_constraintStart_toStartOf="@id/textViewNameFriend"
+        app:layout_constraintTop_toBottomOf="@id/textViewNameFriend"
+        />
+    <ImageView
+        android:id="@+id/unreadMessageIndicator"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_unread_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

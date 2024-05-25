@@ -21,6 +21,7 @@ public class UserSessionManager {
         editor.putBoolean("isLoggedIn", user.isLoggedIn());
         editor.putString("username", user.getUsername());
         editor.putString("phoneNumber", user.getPhoneNumber());
+        editor.putString("name", user.getName());
         editor.apply();
     }
 
@@ -28,7 +29,8 @@ public class UserSessionManager {
         boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
         String username = sharedPreferences.getString("username", null);
         String phoneNumber = sharedPreferences.getString("phoneNumber", null);
-        return new User("", username,"", "", phoneNumber, isLoggedIn);
+        String name = sharedPreferences.getString("name", null);
+        return new User(name, username,"", "", phoneNumber, isLoggedIn);
     }
 
     public void clearSession() {

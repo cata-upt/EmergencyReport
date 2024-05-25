@@ -29,17 +29,37 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import com.example.emergencyapp.BaseApplication;
+import com.example.emergencyapp.api.ApiService;
+import com.example.emergencyapp.api.utils.ExtraDataNotifications;
+import com.example.emergencyapp.api.utils.NotificationRequestApi;
 import com.example.emergencyapp.entities.Contact;
+import com.example.emergencyapp.entities.AlertMessage;
+import com.example.emergencyapp.utils.DatabaseCallback;
 import com.example.emergencyapp.utils.LocationStatusHandler;
 import com.example.emergencyapp.utils.LocationStatusListener;
 import com.example.emergencyapp.R;
+import com.example.emergencyapp.utils.UserHelper;
+import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity implements LocationStatusHandler {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
@@ -78,17 +98,17 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
         locationListener = new LocationStatusListener(this, user, this);
         locationListener.requestLocationUpdates();
 
-        if(user == null) {
+        if (user == null) {
             Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "For a better experience we recommend to sign into your account.", Snackbar.LENGTH_LONG)
                     .setAction("SIGN IN", v -> {
-                        Intent i =new Intent(MainActivity.this, SignInActivity.class);
+                        Intent i = new Intent(MainActivity.this, SignInActivity.class);
                         startActivity(i);
                         finish();
                     });
             showSnackbar(snackbar);
         }
         boolean areNotificationsEnabled = NotificationManagerCompat.from(getApplicationContext()).areNotificationsEnabled();
-        if(!areNotificationsEnabled){
+        if (!areNotificationsEnabled) {
             showNotificationSnackBar();
         }
     }
@@ -137,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
 
         if (checkSmsPermissions()) {
             sendTextToContacts(emergencyText);
+            sendAlertToFriends(emergencyText);
         } else {
             requestSmsPermissions();
             showSmsPermissionSnackbar();
@@ -144,14 +165,14 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
 
     }
 
-    private String getLocation(){
+    private String getLocation() {
         String location = locationListener.getAddressFromLocation();
 
         if (location.equals(getApplicationContext().getString(R.string.address_not_available))) {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestLocationPermissions();
                 Toast.makeText(getApplicationContext(), "Please give location permission.", Toast.LENGTH_SHORT).show();
-            }else {
+            } else {
                 Toast.makeText(getApplicationContext(), "Location not available. Try again!", Toast.LENGTH_SHORT).show();
             }
         }
@@ -159,10 +180,10 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
         return location;
     }
 
-    private void sendTextToContacts(String emergencyText){
+    private void sendTextToContacts(String emergencyText) {
         ArrayList<Contact> contacts = Contact.loadContactsFromPreferences(this);
         SmsManager smsManager = SmsManager.getDefault();
-        if(contacts != null) {
+        if (contacts != null) {
             for (Contact c : contacts) {
                 try {
                     PendingIntent sentIntent = PendingIntent.getBroadcast(
@@ -203,8 +224,8 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
                     }
                 }
             }, new IntentFilter("SMS_SENT"));
-        }else {
-             Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "You should have at least a contact in your list.", Snackbar.LENGTH_LONG)
+        } else {
+            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "You should have at least a contact in your list.", Snackbar.LENGTH_LONG)
                     .setAction("ADD CONTACT", v -> {
                         Intent intent = new Intent(MainActivity.this, AddContactActivity.class);
                         startActivity(intent);
@@ -212,6 +233,84 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
                     });
             showSnackbar(snackbar);
         }
+    }
+
+    boolean success;
+    private void sendAlertToFriends(String emergencyText) {
+
+        if (user != null) {
+            UserSessionManager userSession = new UserSessionManager(getApplicationContext());
+            String body = emergencyText;
+            String title = userSession.getLoginDetails().getName();
+            UserHelper.getFriendsList(user.getUid(), (DatabaseCallback<List<String>>) friendIds -> {
+                for (String friend : friendIds) {
+                    DatabaseReference userIdToken = FirebaseDatabase.getInstance().getReference("tokens").child(friend);
+                    userIdToken.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            success = false;
+                            String token = dataSnapshot.getValue(String.class);
+                            if (token != null) {
+                                sendAlertMessage(friend, token, title, body);
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Log.w("Messaging Service", "Failed to get token for notification", databaseError.toException());
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    private void sendAlertMessage(String friend, String token, String title, String body) {
+        ExtraDataNotifications extraDataNotifications = new ExtraDataNotifications();
+        extraDataNotifications.addData("targetActivity", "ChatActivity");
+        extraDataNotifications.addData("senderId", user.getUid());
+        NotificationRequestApi notificationRequestApi = new NotificationRequestApi(token, title, body);
+        notificationRequestApi.setExtraDataNotifications(extraDataNotifications);
+        AlertMessage alertMessage = new AlertMessage(user.getUid(), friend, title, body, System.currentTimeMillis(), false);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BaseApplication.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiService service = retrofit.create(ApiService.class);
+        service.sendAlertMessage(alertMessage).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    success = true;
+                    Log.d("Notification Service", "Message alert sent successfully");
+                } else {
+                    Log.e("Notification Service", "Failed to send notification");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("Notification Service", "Error sending notification", t);
+            }
+        });
+
+        service.sendNotification(notificationRequestApi).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    if (success) {
+                        Toast.makeText(MainActivity.this, "Notification sent successfully: token " + token, Toast.LENGTH_SHORT).show();
+                    }
+                    Log.d("Notification Service", "Notification sent successfully: token " + token);
+                } else {
+                    Log.e("Notification Service", "Failed to send notification");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("Notification Service", "Error sending notification", t);
+            }
+        });
     }
 
 
@@ -267,6 +366,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
             }
         }
     }
+
     private void showLocationSnackbar() {
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Location services are required for this app. Please enable GPS.", Snackbar.LENGTH_LONG)
                 .setAction("ENABLE", v -> {
@@ -286,8 +386,10 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
 
         showSnackbar(snackbar);
     }
+
     private boolean isShowing = false;
-    private void showSnackbar(Snackbar snackbar){
+
+    private void showSnackbar(Snackbar snackbar) {
         View snackBarView = snackbar.getView();
         snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.accent_color));
 
@@ -336,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
         }
     }
 
-    public void showNotificationSnackBar(){
+    public void showNotificationSnackBar() {
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "For the best experience please allow notifications for this app.", Snackbar.LENGTH_LONG)
                 .setAction("Allow", v -> {
                     // Request location permissions again
@@ -346,13 +448,13 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
         showSnackbar(snackbar);
     }
 
-    public void askNotificationPermission(){
+    public void askNotificationPermission() {
         Intent intent = new Intent();
         intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             intent.putExtra("android.provider.extra.APP_PACKAGE", getPackageName());
-        }else {
+        } else {
             intent.putExtra("app_package", getPackageName());
             intent.putExtra("app_uid", getApplicationInfo().uid);
         }
