@@ -90,7 +90,7 @@ public class FriendsViewModel extends ViewModel {
         }
     }
 
-    private String getChatRoomId(String userId1, String userId2) {
+    public String getChatRoomId(String userId1, String userId2) {
         if (userId1.compareTo(userId2) < 0) {
             return userId1 + "_" + userId2;
         } else {

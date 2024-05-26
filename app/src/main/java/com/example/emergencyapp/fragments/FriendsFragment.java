@@ -45,8 +45,8 @@ public class FriendsFragment extends Fragment {
     TextView messageTextView;
     Button addFriendButton;
     private FriendsAdapter adapter;
-    private DatabaseReference messagesRef;
-    private ValueEventListener messageListener;
+    private DatabaseReference chatRoomsRef;
+    private ValueEventListener chatRoomsListener;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_friends, container, false);
@@ -75,6 +75,20 @@ public class FriendsFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        friendsViewModel.fetchFriends();
+        super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (chatRoomsRef != null && chatRoomsListener != null) {
+            chatRoomsRef.removeEventListener(chatRoomsListener);
+        }
+    }
+
     private void updateFriendsList(){
         friendsViewModel.getFriends().observe(getViewLifecycleOwner(), users -> {
             adapter.clear();
@@ -91,12 +105,32 @@ public class FriendsFragment extends Fragment {
     private void listenForMessages() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            messagesRef = FirebaseDatabase.getInstance().getReference("Messages");
+            if (chatRoomsRef != null && chatRoomsListener != null) {
+                chatRoomsRef.removeEventListener(chatRoomsListener);
+            }
 
-            messageListener = new ValueEventListener() {
+            chatRoomsRef = FirebaseDatabase.getInstance().getReference("ChatRooms").child(currentUser.getUid());
+            chatRoomsListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    friendsViewModel.fetchFriends();
+                    for (DataSnapshot chatRoomSnapshot : dataSnapshot.getChildren()) {
+                        String chatRoomId = chatRoomSnapshot.getKey();
+                        DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("Messages").child(chatRoomId);
+
+                        ValueEventListener messageListener = new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                friendsViewModel.fetchFriends();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                // Handle database error
+                            }
+                        };
+
+                        messagesRef.addValueEventListener(messageListener);
+                    }
                 }
 
                 @Override
@@ -105,13 +139,7 @@ public class FriendsFragment extends Fragment {
                 }
             };
 
-            messagesRef.addValueEventListener(messageListener);
+            chatRoomsRef.addValueEventListener(chatRoomsListener);
         }
-    }
-
-    @Override
-    public void onResume() {
-        friendsViewModel.fetchFriends();
-        super.onResume();
     }
 }

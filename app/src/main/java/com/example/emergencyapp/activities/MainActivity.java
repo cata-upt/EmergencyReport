@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
                             PendingIntent.FLAG_IMMUTABLE
                     );
                     smsManager.sendTextMessage(c.getPhoneNumber(), null, emergencyText, sentIntent, null);
-                    Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "SMS Sent", Toast.LENGTH_LONG).show();
                     Log.i(TAG, "sendTextToContacts: " + emergencyText);
                 } catch (Exception e) {
                     Log.e("EmergencyCall", "sendTextToContacts: ", e);
@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     if (success) {
-                        Toast.makeText(MainActivity.this, "Notification sent successfully: token " + token, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Direct message sent successfully", Toast.LENGTH_SHORT).show();
                     }
                     Log.d("Notification Service", "Notification sent successfully: token " + token);
                 } else {
