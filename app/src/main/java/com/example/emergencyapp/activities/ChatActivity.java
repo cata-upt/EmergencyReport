@@ -5,6 +5,7 @@ import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,9 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
     private ImageView profileImageView;
@@ -44,6 +43,7 @@ public class ChatActivity extends AppCompatActivity {
     private String receiverName;
     private String receiverProfileImageUrl;
     private Boolean isActivityVisible;
+    private ImageView userLocation;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,6 +66,10 @@ public class ChatActivity extends AppCompatActivity {
 
         if (receiverName == null || receiverProfileImageUrl == null) getReceiverDetails();
         else populateFriendFields();
+
+        userLocation = findViewById(R.id.userLocation);
+        userLocation.setOnClickListener(view -> showFriendLocation());
+
         loadMessagesForUser();
     }
 
@@ -154,6 +158,12 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void showFriendLocation(){
+        Intent intent = new Intent(ChatActivity.this, LocationActivity.class);
+        intent.putExtra("userId", receiverId);
+        startActivity(intent);
     }
 
 }

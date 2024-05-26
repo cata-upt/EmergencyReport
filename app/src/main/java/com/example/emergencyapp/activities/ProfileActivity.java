@@ -245,9 +245,8 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void showMapActivity() {
-        Intent i = new Intent(ProfileActivity.this, MapActivity.class);
+        Intent i = new Intent(ProfileActivity.this, LocationActivity.class);
         startActivity(i);
-        finish();
     }
 
     private void retrieveProfilePictureFromStorage() {
