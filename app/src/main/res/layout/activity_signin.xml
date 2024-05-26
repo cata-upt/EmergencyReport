@@ -27,19 +27,19 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <TextView
-                android:id="@+id/loginUsernameLabel"
+                android:id="@+id/loginEmailLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:text="@string/username"
+                android:text="@string/email"
                 android:gravity="start"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:paddingTop="10dp"/>
             <EditText
-                android:id="@+id/usernameEditTextLogin"
+                android:id="@+id/emailEditTextLogin"
                 style="@style/EditTextTheme"
-                android:hint="@string/username"
+                android:hint="@string/email"
                 android:inputType="textEmailAddress"
                 />
 

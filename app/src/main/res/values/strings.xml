@@ -25,7 +25,7 @@
     <string name="address_not_available">Address not available</string>
     <string name="location_activity">See location</string>
     <string name="phone_number_signup">Phone Number</string>
-    <string name="email_signup">Email</string>
+    <string name="email">Email</string>
     <string name="username">Username</string>
     <string name="name_signup">Name</string>
     <string name="register">Register</string>

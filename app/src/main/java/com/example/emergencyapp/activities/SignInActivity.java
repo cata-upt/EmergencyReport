@@ -27,10 +27,10 @@ import com.google.firebase.database.ValueEventListener;
 
 public class SignInActivity extends AppCompatActivity {
 
-    EditText usernameField, passwordField;
+    EditText emailField, passwordField;
     Button loginButton;
 
-    TextView usernameLabel, passwordLabel, loginTextView;
+    TextView emailLabel, passwordLabel, loginTextView;
 
     FirebaseAuth auth;
     FirebaseDatabase rootNode;
@@ -47,9 +47,9 @@ public class SignInActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        usernameField = findViewById(R.id.usernameEditTextLogin);
+        emailField = findViewById(R.id.emailEditTextLogin);
         passwordField = findViewById(R.id.loginPasswordEditText);
-        usernameLabel = findViewById(R.id.loginUsernameLabel);
+        emailLabel = findViewById(R.id.loginEmailLabel);
         passwordLabel = findViewById(R.id.loginPasswordLabel);
         loginTextView= findViewById(R.id.loginMessageTextView);
         loginButton = findViewById(R.id.loginButton);
@@ -61,7 +61,7 @@ public class SignInActivity extends AppCompatActivity {
             signUpActivity();
         });
 
-        setFocusChangeListener(usernameField, usernameLabel);
+        setFocusChangeListener(emailField, emailLabel);
         setFocusChangeListener(passwordField, passwordLabel);
     }
 
@@ -94,7 +94,7 @@ public class SignInActivity extends AppCompatActivity {
         reference = rootNode.getReference("Users");
 
 
-        String username = usernameField.getEditableText().toString();
+        String username = emailField.getEditableText().toString();
         String password = passwordField.getEditableText().toString();
 
 
