@@ -27,12 +27,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
+public class LocationActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    FirebaseUser user;
-    UserSessionManager userSession;
+    private FirebaseUser user;
+    private UserSessionManager userSession;
     private Marker currentMarker;
+    private String userIdToTrack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,21 +43,27 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
         user = FirebaseAuth.getInstance().getCurrentUser();
         userSession = new UserSessionManager(getApplicationContext());
+
+        // Get the userId from the intent
+        userIdToTrack = getIntent().getStringExtra("userId");
+        if (userIdToTrack == null) {
+            userIdToTrack = user.getUid(); // default to the current user if no userId is provided
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navigation_menu, menu);
-
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {
-            Intent i = new Intent(MapActivity.this, SettingsActivity.class);
+            Intent i = new Intent(LocationActivity.this, SettingsActivity.class);
             startActivity(i);
             return true;
         } else {
@@ -73,7 +80,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(timisoara));
 
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-        DatabaseReference locationRef = databaseReference.child(user.getUid()).child("location");
+        DatabaseReference locationRef = databaseReference.child(userIdToTrack).child("location");
 
         locationRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -84,9 +91,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Log.e("LocationActivity", "Failed to read location", error.toException());
             }
-
         });
     }
 

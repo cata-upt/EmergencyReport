@@ -53,7 +53,7 @@
             android:exported="false"/>
         <activity android:name=".activities.ProfileActivity"
             android:exported="false"/>
-        <activity android:name=".activities.MapActivity"
+        <activity android:name=".activities.LocationActivity"
             android:exported="false"/>
         <activity android:name=".activities.FriendsListActivity"
             android:exported="false"/>

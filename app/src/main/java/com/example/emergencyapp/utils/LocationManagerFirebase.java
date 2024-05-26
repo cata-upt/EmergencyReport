@@ -1,4 +1,4 @@
-package com.example.emergencyapp.activities;
+package com.example.emergencyapp.utils;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
