@@ -2,6 +2,7 @@ package com.example.emergencyapp.utils;
 
 import android.util.Log;
 
+import com.example.emergencyapp.entities.User;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 

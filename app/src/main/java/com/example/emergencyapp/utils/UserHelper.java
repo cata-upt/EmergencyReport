@@ -2,6 +2,7 @@ package com.example.emergencyapp.utils;
 
 import android.util.Log;
 
+import com.example.emergencyapp.entities.User;
 import com.example.emergencyapp.exceptions.UserException;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -12,6 +13,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class UserHelper {
 
@@ -94,6 +96,26 @@ public class UserHelper {
                         callback.onCallback(friend);
                     }
                 }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle database error
+            }
+        });
+    }
+
+    public static void getFriendsList(String userId, DatabaseCallback callback) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Friends").child(userId);
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<String> friendIds = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        friendIds.add(snapshot.getKey());
+                }
+                callback.onCallback(friendIds);
             }
 
             @Override

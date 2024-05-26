@@ -39,5 +39,6 @@
     <string name="emptyFriendsList">The friends list is empty.</string>
     <string name="accept">Accept</string>
     <string name="delete">Delete</string>
+    <string name="lastmessage">LastMessage</string>
 
 </resources>

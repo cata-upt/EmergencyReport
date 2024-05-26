@@ -19,7 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.exceptions.UserException;
 import com.example.emergencyapp.utils.DatabaseConnectionUtils;
-import com.example.emergencyapp.utils.User;
+import com.example.emergencyapp.entities.User;
 import com.example.emergencyapp.utils.UserHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,7 +31,7 @@ public class SignUpActivity extends AppCompatActivity {
     EditText nameField, usernameField, emailField, passwordField, phoneNumberField;
     Button registerButton;
     TextView signInTextView, nameLabel, usernameLabel, emailLabel, passwordLabel, phoneNumberLabel;
-
+//todo: make some required
     FirebaseDatabase rootNode;
     DatabaseReference reference;
 

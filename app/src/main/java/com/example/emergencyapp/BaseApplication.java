@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.example.emergencyapp.api.ApiService;
 import com.example.emergencyapp.api.utils.TokenRequestApi;
-import com.example.emergencyapp.utils.User;
+import com.example.emergencyapp.entities.User;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

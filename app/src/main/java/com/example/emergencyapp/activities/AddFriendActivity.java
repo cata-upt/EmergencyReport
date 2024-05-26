@@ -1,7 +1,5 @@
 package com.example.emergencyapp.activities;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,10 +16,10 @@ import androidx.core.content.ContextCompat;
 import com.example.emergencyapp.BaseApplication;
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.api.ApiService;
+import com.example.emergencyapp.api.utils.ExtraDataNotifications;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
-import com.example.emergencyapp.utils.FriendRequest;
+import com.example.emergencyapp.entities.FriendRequest;
 import com.example.emergencyapp.utils.MessagingService;
-import com.example.emergencyapp.utils.User;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,8 +29,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -110,7 +106,11 @@ public class AddFriendActivity extends AppCompatActivity {
                     success = false;
                     String token = dataSnapshot.getValue(String.class);
                     if (token != null) {
+                        ExtraDataNotifications extraDataNotifications = new ExtraDataNotifications();
+                        extraDataNotifications.addData("targetActivity", "FriendsListActivity");
+                        extraDataNotifications.addData("fragment", "FriendRequests");
                         NotificationRequestApi notificationRequestApi = new NotificationRequestApi(token, title, body);
+                        notificationRequestApi.setExtraDataNotifications(extraDataNotifications);
                         FriendRequest friendRequest = new FriendRequest(user.getUid(), userId);
                         Retrofit retrofit = new Retrofit.Builder()
                                 .baseUrl(BaseApplication.BASE_URL)

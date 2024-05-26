@@ -25,7 +25,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.emergencyapp.utils.Contact;
+import com.example.emergencyapp.entities.Contact;
 import com.example.emergencyapp.R;
 
 import java.util.ArrayList;

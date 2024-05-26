@@ -22,7 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.utils.DatabaseCallback;
 import com.example.emergencyapp.utils.DatabaseConnectionUtils;
-import com.example.emergencyapp.utils.User;
+import com.example.emergencyapp.entities.User;
 import com.example.emergencyapp.utils.UserHelper;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,7 +33,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class ProfileActivity extends AppCompatActivity {

@@ -2,7 +2,8 @@ package com.example.emergencyapp.api;
 
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
 import com.example.emergencyapp.api.utils.TokenRequestApi;
-import com.example.emergencyapp.utils.FriendRequest;
+import com.example.emergencyapp.entities.FriendRequest;
+import com.example.emergencyapp.entities.AlertMessage;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -18,4 +19,7 @@ public interface ApiService {
 
     @POST("sendFriendRequest")
     Call<Void> sendFriendRequest(@Body FriendRequest friendRequest);
+
+    @POST("sendAlertMessage")
+    Call<Void> sendAlertMessage(@Body AlertMessage alertMessage);
 }
