@@ -3,6 +3,7 @@ package com.example.emergencyapp;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import com.example.emergencyapp.api.ApiService;
 import com.example.emergencyapp.api.utils.TokenRequestApi;
 import com.example.emergencyapp.entities.User;
+import com.example.emergencyapp.utils.ShakeService;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +39,7 @@ public class BaseApplication extends Application {
         setupFirebaseAuthListener();
         obtainFirebaseToken();
         createNotificationChannel();
+        createShakeService();
     }
 
     private void createNotificationChannel(){
@@ -112,6 +115,15 @@ public class BaseApplication extends Application {
                     Log.e("Token Registration", "Failed to send token", t);
                 }
             });
+        }
+    }
+
+    private void createShakeService(){
+        Intent serviceIntent = new Intent(this, ShakeService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
         }
     }
 }

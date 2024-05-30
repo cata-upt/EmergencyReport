@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-feature android:name="android.hardware.location.gps"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <application
         android:name=".BaseApplication"
         android:allowBackup="true"
@@ -31,6 +33,9 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
+        <service android:name=".utils.ShakeService"
+            android:enabled="true"
+            android:exported="false"/>
         <activity
             android:name=".activities.MainActivity"
             android:exported="true">
@@ -60,6 +65,8 @@
         <activity android:name=".activities.AddFriendActivity"
             android:exported="false"/>
         <activity android:name=".activities.ChatActivity"
+            android:exported="false"/>
+        <activity android:name=".activities.PermissionsActivity"
             android:exported="false"/>
     </application>
 </manifest>

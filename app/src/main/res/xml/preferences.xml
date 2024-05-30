@@ -20,7 +20,14 @@
             android:targetPackage="com.example.emergencyapp"
             android:targetClass="com.example.emergencyapp.activities.AddContactActivity"/>
     </Preference>
-
+    <Preference
+        android:key="permissions"
+        android:title="@string/permissions">
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.example.emergencyapp"
+            android:targetClass="com.example.emergencyapp.activities.PermissionsActivity"/>
+    </Preference>
     <Preference
         android:key="profile"
         android:title="@string/profile">

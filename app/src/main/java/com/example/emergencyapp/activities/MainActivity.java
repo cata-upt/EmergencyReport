@@ -1,5 +1,6 @@
 package com.example.emergencyapp.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -9,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -39,6 +41,7 @@ import com.example.emergencyapp.utils.DatabaseCallback;
 import com.example.emergencyapp.utils.LocationStatusHandler;
 import com.example.emergencyapp.utils.LocationStatusListener;
 import com.example.emergencyapp.R;
+import com.example.emergencyapp.utils.ShakeService;
 import com.example.emergencyapp.utils.UserHelper;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.android.material.snackbar.Snackbar;
@@ -64,6 +67,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity implements LocationStatusHandler {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private static final int SMS_PERMISSION_REQUEST_CODE = 1002;
+    private static final int SYSTEM_ALERT_WINDOW_PERMISSION = 2084;
 
     private LocationManager locationManager;
     private LocationStatusListener locationListener;
@@ -111,16 +115,15 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
         if (!areNotificationsEnabled) {
             showNotificationSnackBar();
         }
+
+        if (!Settings.canDrawOverlays(this)) {
+            showSystemAlertPermissionSnackbar();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (checkLocationPermissions()) {
-            locationListener.requestLocationUpdates();
-        } else {
-            requestLocationPermissions();
-        }
     }
 
     @Override
@@ -146,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
         }
     }
 
-    private void handleSendText() {
+    public void handleSendText() {
         Log.d(TAG, "Button clicked, initiating SMS sending process");
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -236,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
     }
 
     boolean success;
+
     private void sendAlertToFriends(String emergencyText) {
 
         if (user != null) {
@@ -254,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
                                 sendAlertMessage(friend, token, title, body);
                             }
                         }
+
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
                             Log.w("Messaging Service", "Failed to get token for notification", databaseError.toException());
@@ -320,7 +325,6 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
     }
 
     private void requestLocationPermissions() {
-        // Request location permissions at runtime
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
     }
 
@@ -331,6 +335,12 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
 
     private void requestSmsPermissions() {
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.SEND_SMS}, SMS_PERMISSION_REQUEST_CODE);
+    }
+
+    private void requestOverlayPermission() {
+        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:" + getApplicationContext().getPackageName()));
+        startActivity(intent);
     }
 
     private void showSmsPermissionSnackbar() {
@@ -350,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startLocationUpdates();
             } else {
-                showPermissionSnackbar();
+                showLocationPermissionSnackbar();
             }
         }
     }
@@ -377,11 +387,21 @@ public class MainActivity extends AppCompatActivity implements LocationStatusHan
         showSnackbar(snackbar);
     }
 
-    private void showPermissionSnackbar() {
+    private void showLocationPermissionSnackbar() {
         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Location permission is required for this app.", Snackbar.LENGTH_LONG)
                 .setAction("GRANT", v -> {
                     // Request location permissions again
                     requestLocationPermissions();
+                });
+
+        showSnackbar(snackbar);
+    }
+
+    private void showSystemAlertPermissionSnackbar() {
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Grant permission for the app to show over other apps", Snackbar.LENGTH_LONG)
+                .setAction("GRANT", v -> {
+                    // Request location permissions again
+                    requestOverlayPermission();
                 });
 
         showSnackbar(snackbar);
