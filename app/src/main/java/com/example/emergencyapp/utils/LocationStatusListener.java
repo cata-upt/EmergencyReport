@@ -103,37 +103,15 @@ public class LocationStatusListener implements LocationListener {
     }
 
     public String getAddressFromLocation() {
-        if (currentLocation == null) {
-            retrieveLocationFromFirebase();
+        if (currentLocation == null && user != null) {
+            return retrieveLocationFromFirebase();
         }
         return getAddressFromLocation(currentLocation);
     }
 
-    public void retrieveLocationFromFirebase() {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-        DatabaseReference locationRef = databaseReference.child(user.getUid()).child("location");
-
-        locationRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    UserLocation userLocation = dataSnapshot.getValue(UserLocation.class);
-
-                    if (userLocation != null) {
-                        currentLocation = userLocation;
-                    } else {
-                        Log.d(TAG, "Location data incomplete");
-                    }
-                } else {
-                    Log.d(TAG, "Location data not found in Firebase");
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e(TAG, "Failed to read location from Firebase", databaseError.toException());
-            }
-        });
+    public String retrieveLocationFromFirebase() {
+        UserHelper.getLocationSaved(user.getUid(), (DatabaseCallback<UserLocation>) userLocation -> currentLocation = userLocation);
+        return "Last known location is: " + getAddressFromLocation(currentLocation);
     }
 
     private String getAddressFromLocation(UserLocation location) {

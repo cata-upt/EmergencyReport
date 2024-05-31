@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:text="@string/person_name"
+        android:textColor="@color/black"
         android:textSize="18sp" />
 
     <Button

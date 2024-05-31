@@ -40,5 +40,9 @@
     <string name="accept">Accept</string>
     <string name="delete">Delete</string>
     <string name="lastmessage">LastMessage</string>
+    <string name="permissions">Permissions</string>
+    <string name="do_you_really_want_to_send_an_emergency_text">Do you really want to send an emergency text?</string>
+    <string name="permission_name">Permission Name</string>
+    <string name="description">Description</string>
 
 </resources>
