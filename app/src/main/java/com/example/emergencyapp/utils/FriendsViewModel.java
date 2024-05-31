@@ -20,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class FriendsViewModel extends ViewModel {
@@ -110,5 +111,6 @@ public class FriendsViewModel extends ViewModel {
         if (!userExists) {
             friendsList.add(friend);
         }
+        friendsList.sort(Comparator.comparingLong(FriendItem::getTimestamp).reversed());
     }
 }

@@ -3,7 +3,7 @@
     <string name="action_settings">Settings\n</string>
     <string name="default_emergency_text_replacer">Enter your text here</string>
     <string name="emergency_text_title">Set emergency text</string>
-    <string name="default_emergency_text">I have an emergency. Last location is: </string>
+    <string name="default_emergency_text">I have an emergency.</string>
     <string name="add_contact">Add emergency contact</string>
     <string name="contact_pick_text">Add contact</string>
     <string name="contact_delete_text">Delete contact</string>

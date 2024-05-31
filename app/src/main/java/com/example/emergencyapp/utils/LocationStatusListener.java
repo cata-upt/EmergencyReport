@@ -177,7 +177,7 @@ public class LocationStatusListener implements LocationListener {
 
     @Override
     public void onProviderEnabled(String provider) {
-        if (provider.equals(LocationManager.GPS_PROVIDER)) {
+        if (provider.equals(LocationManager.GPS_PROVIDER) || provider.equals(LocationManager.NETWORK_PROVIDER)) {
             if (locationStatusHandler != null) {
                 locationStatusHandler.onGPSEnabled();
             }
@@ -186,7 +186,7 @@ public class LocationStatusListener implements LocationListener {
 
     @Override
     public void onProviderDisabled(String provider) {
-        if (provider.equals(LocationManager.GPS_PROVIDER)) {
+        if (provider.equals(LocationManager.GPS_PROVIDER) || provider.equals(LocationManager.NETWORK_PROVIDER)) {
             if (locationStatusHandler != null) {
                 locationStatusHandler.onGPSDisabled();
             }
