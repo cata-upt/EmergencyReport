@@ -26,6 +26,7 @@ public class UserHelper {
         return validateName(user.getName()) &&
                 validateUsername(user.getUsername()) &&
                 validateEmail(user.getEmail()) &&
+                validatePhoneNumber(user.getPhoneNumber()) &&
                 validatePassword(user.getPassword());
     }
 
@@ -71,6 +72,13 @@ public class UserHelper {
             if (!validPass) {
                 throw new UserException("The password needs to have 8 characters, at least a number, a capital letter and a special character!");
             }
+        }
+        return true;
+    }
+
+    private static boolean validatePhoneNumber(String phoneNumber) throws UserException {
+        if (!phoneNumber.matches("^[0-9]+$")) {
+            throw new UserException("The phone number can only contain numbers!");
         }
         return true;
     }

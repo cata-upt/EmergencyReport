@@ -51,8 +51,6 @@ public class AlertMessagingUtils implements LocationStatusHandler {
     private LocationManager locationManager;
     private LocationStatusListener locationListener;
 
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
-
     public AlertMessagingUtils(Context context) {
         this.context = context;
 
@@ -71,7 +69,7 @@ public class AlertMessagingUtils implements LocationStatusHandler {
         String emergencyText = sharedPreferences.getString("emergency_text", "");
 
         String location = getLocation();
-        emergencyText += " " + location;
+        emergencyText += location;
 
         if (checkSmsPermissions()) {
             sendTextToContacts(emergencyText);
@@ -119,7 +117,6 @@ public class AlertMessagingUtils implements LocationStatusHandler {
     }
 
     private void sendAlertToFriends(String emergencyText) {
-
         if (user != null) {
             UserSessionManager userSession = new UserSessionManager(context);
             String body = emergencyText;
@@ -201,7 +198,6 @@ public class AlertMessagingUtils implements LocationStatusHandler {
 
     @Override
     public void onGPSDisabled() {
-        locationListener.stopLocationUpdates();
     }
 
     @Override
