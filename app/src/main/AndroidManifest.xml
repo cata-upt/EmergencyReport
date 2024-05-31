@@ -68,5 +68,7 @@
             android:exported="false"/>
         <activity android:name=".activities.PermissionsActivity"
             android:exported="false"/>
+        <activity android:name=".activities.ShakeServiceActivity"
+            android:exported="false"/>
     </application>
 </manifest>

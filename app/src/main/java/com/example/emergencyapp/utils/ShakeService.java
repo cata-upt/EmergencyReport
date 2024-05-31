@@ -29,10 +29,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+import androidx.credentials.playservices.CredentialProviderMetadataHolder;
 
 import com.example.emergencyapp.BaseApplication;
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.activities.MainActivity;
+import com.example.emergencyapp.activities.ShakeServiceActivity;
 import com.example.emergencyapp.api.ApiService;
 import com.example.emergencyapp.api.utils.ExtraDataNotifications;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
@@ -62,11 +64,13 @@ public class ShakeService extends Service {
     private WindowManager windowManager;
     private View overlayView;
     FirebaseUser user;
+    AlertMessagingUtils alertMessagingUtils;
 
     @Override
     public void onCreate() {
         super.onCreate();
         user = FirebaseAuth.getInstance().getCurrentUser();
+        alertMessagingUtils = new AlertMessagingUtils(getApplicationContext());
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mShakeDetector = new ShakePhoneDetector();
@@ -133,8 +137,7 @@ public class ShakeService extends Service {
         textView.setText(R.string.do_you_really_want_to_send_an_emergency_text);
 
         yesButton.setOnClickListener(v -> {
-            sendAlertToFriends("emergency");
-            sendTextToContacts("emergency");
+            handleSendText();
             windowManager.removeView(overlayView);
             overlayView = null;
         });
@@ -152,6 +155,11 @@ public class ShakeService extends Service {
                 overlayView = null;
             }
         }, 5000); // 5 seconds timer
+    }
+
+    public void handleSendText() {
+        Log.d(TAG, "Button clicked, initiating SMS sending process");
+        alertMessagingUtils.handleSendText();
     }
 
     private void sendTextToContacts(String emergencyText) {
