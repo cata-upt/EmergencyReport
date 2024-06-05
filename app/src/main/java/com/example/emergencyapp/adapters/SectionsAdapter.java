@@ -1,4 +1,4 @@
-package com.example.emergencyapp.utils;
+package com.example.emergencyapp.adapters;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;

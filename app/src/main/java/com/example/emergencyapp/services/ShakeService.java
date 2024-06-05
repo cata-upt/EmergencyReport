@@ -1,4 +1,4 @@
-package com.example.emergencyapp.utils;
+package com.example.emergencyapp.services;
 
 import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 
@@ -40,6 +40,11 @@ import com.example.emergencyapp.api.utils.ExtraDataNotifications;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
 import com.example.emergencyapp.entities.AlertMessage;
 import com.example.emergencyapp.entities.Contact;
+import com.example.emergencyapp.utils.AlertMessagingUtils;
+import com.example.emergencyapp.utils.DatabaseCallback;
+import com.example.emergencyapp.utils.ShakePhoneDetector;
+import com.example.emergencyapp.utils.UserHelper;
+import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;

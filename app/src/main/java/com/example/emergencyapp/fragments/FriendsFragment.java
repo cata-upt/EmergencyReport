@@ -9,23 +9,15 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.emergencyapp.R;
-import com.example.emergencyapp.activities.AddContactActivity;
 import com.example.emergencyapp.activities.AddFriendActivity;
 import com.example.emergencyapp.activities.ChatActivity;
 import com.example.emergencyapp.activities.FriendsAdapter;
-import com.example.emergencyapp.activities.FriendsListActivity;
-import com.example.emergencyapp.entities.AlertMessage;
-import com.example.emergencyapp.entities.User;
-import com.example.emergencyapp.utils.FriendItem;
+import com.example.emergencyapp.entities.FriendItem;
 import com.example.emergencyapp.utils.FriendsViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

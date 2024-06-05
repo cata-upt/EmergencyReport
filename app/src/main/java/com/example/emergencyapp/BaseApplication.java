@@ -12,7 +12,8 @@ import androidx.annotation.NonNull;
 import com.example.emergencyapp.api.ApiService;
 import com.example.emergencyapp.api.utils.TokenRequestApi;
 import com.example.emergencyapp.entities.User;
-import com.example.emergencyapp.utils.ShakeService;
+import com.example.emergencyapp.services.CameraService;
+import com.example.emergencyapp.services.ShakeService;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -40,6 +41,7 @@ public class BaseApplication extends Application {
         obtainFirebaseToken();
         createNotificationChannel();
         createShakeService();
+        createCameraService();
     }
 
     private void createNotificationChannel(){
@@ -120,6 +122,15 @@ public class BaseApplication extends Application {
 
     private void createShakeService(){
         Intent serviceIntent = new Intent(this, ShakeService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+    }
+
+    private void createCameraService(){
+        Intent serviceIntent = new Intent(this, CameraService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent);
         } else {

@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser user;
 
     private Queue<Snackbar> snackbarQueue = new LinkedList<>();
-    AlertMessagingUtils alertMessagingUtils;
+    private AlertMessagingUtils alertMessagingUtils;
     private boolean isBound = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

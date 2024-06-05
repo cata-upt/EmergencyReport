@@ -5,7 +5,6 @@ import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,7 +18,7 @@ import com.example.emergencyapp.R;
 import com.example.emergencyapp.entities.AlertMessage;
 import com.example.emergencyapp.entities.User;
 import com.example.emergencyapp.utils.DatabaseCallback;
-import com.example.emergencyapp.utils.MessageAdapter;
+import com.example.emergencyapp.adapters.MessageAdapter;
 import com.example.emergencyapp.utils.UserHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

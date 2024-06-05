@@ -3,7 +3,6 @@ package com.example.emergencyapp.activities;
 import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,14 +10,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencyapp.R;
-import com.example.emergencyapp.utils.FriendItem;
+import com.example.emergencyapp.entities.FriendItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

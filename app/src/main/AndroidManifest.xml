@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera.any"/>
     <application
         android:name=".BaseApplication"
         android:allowBackup="true"
@@ -27,15 +29,16 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCrZV2P5rZn5db1uLgPQJRyNi65sNO_4mI"/>
         <service
-            android:name=".utils.MessagingService"
+            android:name=".services.MessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
-        <service android:name=".utils.ShakeService"
+        <service android:name=".services.ShakeService"
             android:enabled="true"
             android:exported="false"/>
+        <service android:name=".services.CameraService" android:exported="false"/>
         <activity
             android:name=".activities.MainActivity"
             android:exported="true">

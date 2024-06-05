@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
@@ -14,14 +13,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.emergencyapp.R;
-import com.example.emergencyapp.utils.PermissionItem;
-import com.example.emergencyapp.utils.PermissionsAdapter;
+import com.example.emergencyapp.entities.PermissionItem;
+import com.example.emergencyapp.adapters.PermissionsAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PermissionsActivity extends AppCompatActivity {
-    public static final int REQUEST_CODE_PERMISSIONS = 100;
+
     private RecyclerView recyclerView;
     private PermissionsAdapter adapter;
     private List<PermissionItem> permissionList;
@@ -65,6 +64,10 @@ public class PermissionsActivity extends AppCompatActivity {
                 "Overlay",
                 "Allows the app to show over other apps.",
                 Settings.canDrawOverlays(this)));
+        permissionList.add(new PermissionItem(
+                "Camera",
+                "Allows the app to send images along with the alerts.",
+                ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)== PackageManager.PERMISSION_GRANTED));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             permissionList.add(new PermissionItem(
                     "Notifications",

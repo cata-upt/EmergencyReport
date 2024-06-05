@@ -1,4 +1,4 @@
-package com.example.emergencyapp.utils;
+package com.example.emergencyapp.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;

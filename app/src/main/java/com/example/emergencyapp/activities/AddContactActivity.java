@@ -41,7 +41,6 @@ public class AddContactActivity extends AppCompatActivity {
     private ListView mContactList;
 
     private int selectedPosition = -1;
-    private static final String KEY_CONTACT_LIST = "contactList";
     private List<Contact> contactList=new ArrayList<>();;
 
     private ArrayAdapter<Contact> adapter;

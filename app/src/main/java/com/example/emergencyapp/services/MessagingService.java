@@ -1,4 +1,4 @@
-package com.example.emergencyapp.utils;
+package com.example.emergencyapp.services;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -17,6 +17,8 @@ import com.example.emergencyapp.activities.ChatActivity;
 import com.example.emergencyapp.activities.FriendsListActivity;
 import com.example.emergencyapp.activities.MainActivity;
 import com.example.emergencyapp.entities.User;
+import com.example.emergencyapp.utils.DatabaseCallback;
+import com.example.emergencyapp.utils.UserHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

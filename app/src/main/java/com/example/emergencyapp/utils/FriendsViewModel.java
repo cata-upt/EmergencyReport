@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.emergencyapp.entities.AlertMessage;
+import com.example.emergencyapp.entities.FriendItem;
 import com.example.emergencyapp.entities.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

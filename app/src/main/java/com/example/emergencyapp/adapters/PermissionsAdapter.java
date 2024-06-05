@@ -1,4 +1,4 @@
-package com.example.emergencyapp.utils;
+package com.example.emergencyapp.adapters;
 
 import android.Manifest;
 import android.app.Activity;
@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.emergencyapp.R;
+import com.example.emergencyapp.entities.PermissionItem;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
     private static final int SMS_PERMISSION_REQUEST_CODE = 1002;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private static final int REQUEST_READ_CONTACTS_PERMISSION = 0;
+    private static final int REQUEST_CAMERA_PERMISSION = 200;
 
     public PermissionsAdapter(List<PermissionItem> permissionList, Context context, Activity activity) {
         this.permissionList = permissionList;
@@ -81,6 +83,9 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
             case "Contacts":
                 requestContactsPermissions();
                 break;
+            case "Camera":
+                requestCameraPermissions();
+                break;
             case "Overlay":
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     requestOverlayPermission();
@@ -112,6 +117,10 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
 
     private void requestContactsPermissions() {
         ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS_PERMISSION);
+    }
+
+    private void requestCameraPermissions() {
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -154,6 +163,7 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
                     requestOverlayPermission();
                 }
                 break;
+            case "Camera":
             case "Location":
             case "SMS":
             case "Contacts":

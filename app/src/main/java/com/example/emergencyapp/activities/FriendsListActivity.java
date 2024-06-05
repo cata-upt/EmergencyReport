@@ -3,14 +3,11 @@ package com.example.emergencyapp.activities;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.emergencyapp.R;
-import com.example.emergencyapp.fragments.FriendsFragment;
-import com.example.emergencyapp.utils.SectionsAdapter;
+import com.example.emergencyapp.adapters.SectionsAdapter;
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 public class FriendsListActivity extends AppCompatActivity{
     TabLayout tabLayout;

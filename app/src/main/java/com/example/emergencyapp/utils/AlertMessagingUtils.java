@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -27,6 +28,8 @@ import com.example.emergencyapp.api.utils.ExtraDataNotifications;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
 import com.example.emergencyapp.entities.AlertMessage;
 import com.example.emergencyapp.entities.Contact;
+import com.example.emergencyapp.services.CameraService;
+import com.example.emergencyapp.services.ShakeService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -76,6 +79,10 @@ public class AlertMessagingUtils implements LocationStatusHandler {
         }
         sendAlertToFriends(emergencyText);
 
+    }
+
+    public void handleSendTextImage(String imageUrl) {
+        sendAlertToFriends(imageUrl);
     }
 
     private String getLocation() {

@@ -19,7 +19,7 @@ import com.example.emergencyapp.api.ApiService;
 import com.example.emergencyapp.api.utils.ExtraDataNotifications;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
 import com.example.emergencyapp.entities.FriendRequest;
-import com.example.emergencyapp.utils.MessagingService;
+import com.example.emergencyapp.services.MessagingService;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
