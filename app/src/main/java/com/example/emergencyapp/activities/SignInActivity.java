@@ -27,15 +27,15 @@ import com.google.firebase.database.ValueEventListener;
 
 public class SignInActivity extends AppCompatActivity {
 
-    EditText emailField, passwordField;
-    Button loginButton;
+    private EditText emailField, passwordField;
+    private Button loginButton;
 
-    TextView emailLabel, passwordLabel, loginTextView;
+    private TextView emailLabel, passwordLabel, loginTextView;
 
-    FirebaseAuth auth;
-    FirebaseDatabase rootNode;
-    DatabaseReference reference;
-    UserSessionManager userSession;
+    private FirebaseAuth auth;
+    private FirebaseDatabase rootNode;
+    private DatabaseReference reference;
+    private UserSessionManager userSession;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,7 @@ public class SignInActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
+        if (item.getItemId() == R.id.menu) {
             Intent i = new Intent(SignInActivity.this, SettingsActivity.class);
             startActivity(i);
             return true;
@@ -161,11 +161,6 @@ public class SignInActivity extends AppCompatActivity {
                 label.setVisibility(View.INVISIBLE);
             }
         });
-    }
-
-    private void displayMessageTextView(String message) {
-        loginTextView.setText(message);
-        loginTextView.setVisibility(View.VISIBLE);
     }
 
     private void hideMessageTextView() {

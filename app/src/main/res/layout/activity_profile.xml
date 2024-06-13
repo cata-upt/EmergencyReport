@@ -52,6 +52,21 @@
             <View style="@style/Divider"/>
 
             <TextView
+                android:id="@+id/changeEmailTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/change_email"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+            <View style="@style/Divider"/>
+
+            <TextView
                 android:id="@+id/changeNameTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -60,6 +75,21 @@
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="@string/change_name"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+            <View style="@style/Divider"/>
+
+            <TextView
+                android:id="@+id/changePhoneNumberTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/change_phone_number"
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
@@ -82,21 +112,6 @@
             <View style="@style/Divider"/>
 
             <TextView
-                android:id="@+id/changePhoneNumberTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:padding="5dp"
-                android:text="@string/change_phone_number"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
-
-            <View style="@style/Divider"/>
-
-            <TextView
                 android:id="@+id/locationTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -108,22 +123,6 @@
                 android:textColor="@color/black"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
-
-            <View style="@style/Divider"/>
-
-            <TextView
-                android:id="@+id/friendsTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:padding="5dp"
-                android:text="@string/friends_list"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
-
             <View style="@style/Divider"/>
             <View
                 android:layout_width="match_parent"

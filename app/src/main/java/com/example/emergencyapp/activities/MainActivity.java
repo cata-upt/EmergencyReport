@@ -1,9 +1,6 @@
 package com.example.emergencyapp.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -15,13 +12,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.emergencyapp.utils.AlertMessagingUtils;
 import com.example.emergencyapp.R;
-import com.example.emergencyapp.utils.LocationStatusHandler;
-import com.example.emergencyapp.utils.LocationStatusListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -38,8 +32,12 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser user;
 
     private Queue<Snackbar> snackbarQueue = new LinkedList<>();
-    AlertMessagingUtils alertMessagingUtils;
+    private AlertMessagingUtils alertMessagingUtils;
     private boolean isBound = false;
+
+    public MainActivity() {
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
+        if (item.getItemId() == R.id.menu) {
             Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(i);
             return true;
@@ -140,5 +138,29 @@ public class MainActivity extends AppCompatActivity {
             next.show();
             isShowing = true;
         }
+    }
+
+    public FirebaseUser getUser() {
+        return user;
+    }
+
+    public void setUser(FirebaseUser user) {
+        this.user = user;
+    }
+
+    public Queue<Snackbar> getSnackbarQueue() {
+        return snackbarQueue;
+    }
+
+    public void setSnackbarQueue(Queue<Snackbar> snackbarQueue) {
+        this.snackbarQueue = snackbarQueue;
+    }
+
+    public AlertMessagingUtils getAlertMessagingUtils() {
+        return alertMessagingUtils;
+    }
+
+    public void setAlertMessagingUtils(AlertMessagingUtils alertMessagingUtils) {
+        this.alertMessagingUtils = alertMessagingUtils;
     }
 }

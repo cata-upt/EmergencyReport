@@ -10,7 +10,7 @@
         android:id="@+id/edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/enter_new_name"
+        android:hint="@string/enter_new_attribute"
         android:textColor="@color/black"
         android:inputType="textPersonName"/>
 
@@ -19,6 +19,6 @@
         android:background="@drawable/rounded_button_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/change_name_button_submit"
+        android:text="@string/change_button_submit"
         android:layout_marginTop="16dp"/>
 </LinearLayout>

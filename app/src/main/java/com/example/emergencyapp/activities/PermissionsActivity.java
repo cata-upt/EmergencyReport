@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PermissionsActivity extends AppCompatActivity {
-    public static final int REQUEST_CODE_PERMISSIONS = 100;
     private RecyclerView recyclerView;
     private PermissionsAdapter adapter;
     private List<PermissionItem> permissionList;

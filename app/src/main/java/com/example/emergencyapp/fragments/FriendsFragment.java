@@ -42,8 +42,8 @@ public class FriendsFragment extends Fragment {
     private FriendsViewModel friendsViewModel;
     private ListView friendsListView;
     private List<FriendItem> friends = new ArrayList<>();
-    TextView messageTextView;
-    Button addFriendButton;
+    private TextView messageTextView;
+    private Button addFriendButton;
     private FriendsAdapter adapter;
     private DatabaseReference chatRoomsRef;
     private ValueEventListener chatRoomsListener;

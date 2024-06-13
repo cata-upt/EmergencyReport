@@ -1,17 +1,23 @@
 package com.example.emergencyapp.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.entities.UserLocation;
-import com.example.emergencyapp.utils.UserSessionManager;
+import com.example.emergencyapp.utils.LocationStatusHandler;
+import com.example.emergencyapp.utils.LocationStatusListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,13 +33,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class LocationActivity extends FragmentActivity implements OnMapReadyCallback {
+public class LocationActivity extends FragmentActivity implements OnMapReadyCallback, LocationStatusHandler {
 
     private GoogleMap mMap;
     private FirebaseUser user;
-    private UserSessionManager userSession;
     private Marker currentMarker;
     private String userIdToTrack;
+    private LocationManager locationManager;
+    private LocationStatusListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +52,15 @@ public class LocationActivity extends FragmentActivity implements OnMapReadyCall
         mapFragment.getMapAsync(this);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
-        userSession = new UserSessionManager(getApplicationContext());
 
-        // Get the userId from the intent
         userIdToTrack = getIntent().getStringExtra("userId");
-        if (userIdToTrack == null) {
-            userIdToTrack = user.getUid(); // default to the current user if no userId is provided
+        if (userIdToTrack == null && user != null) {
+            userIdToTrack = user.getUid();
         }
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        locationListener = new LocationStatusListener(this, user, this);
+        startLocationUpdates();
     }
 
     @Override
@@ -62,7 +71,7 @@ public class LocationActivity extends FragmentActivity implements OnMapReadyCall
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
+        if (item.getItemId() == R.id.menu) {
             Intent i = new Intent(LocationActivity.this, SettingsActivity.class);
             startActivity(i);
             return true;
@@ -77,7 +86,8 @@ public class LocationActivity extends FragmentActivity implements OnMapReadyCall
 
         LatLng timisoara = new LatLng(45.753540, 21.229172);
         currentMarker = mMap.addMarker(new MarkerOptions().position(timisoara).title("Marker in Timisoara"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(timisoara));
+        float zoomLevel = 17.0f;
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(timisoara, zoomLevel));
 
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
         DatabaseReference locationRef = databaseReference.child(userIdToTrack).child("location");
@@ -111,5 +121,29 @@ public class LocationActivity extends FragmentActivity implements OnMapReadyCall
 
         float zoomLevel = 17.0f;
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, zoomLevel));
+    }
+
+    private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationListener.requestLocationUpdates();
+            }
+        }
+    }
+
+    @Override
+    public void onGPSDisabled() {
+
+    }
+
+    @Override
+    public void onGPSEnabled() {
+        if (checkLocationPermissions()) {
+            startLocationUpdates();
+        }
+    }
+
+    private boolean checkLocationPermissions() {
+        return ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 }

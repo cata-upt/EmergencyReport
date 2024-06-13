@@ -26,7 +26,7 @@ public class ShakePhoneDetector implements SensorEventListener {
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuacy) {
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Do nothing
     }
 

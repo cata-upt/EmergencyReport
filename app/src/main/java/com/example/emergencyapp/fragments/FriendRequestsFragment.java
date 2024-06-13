@@ -20,8 +20,8 @@ public class FriendRequestsFragment extends Fragment {
 
     private FriendRequestsViewModel friendRequestsViewModel;
     private FriendRequestsAdapter adapter;
-    ListView friendRequestsListView;
-    TextView messageTextView;
+    private ListView friendRequestsListView;
+    private TextView messageTextView;
 
     public FriendRequestsFragment() {
     }

@@ -22,6 +22,7 @@ import androidx.preference.PreferenceManager;
 
 import com.example.emergencyapp.BaseApplication;
 import com.example.emergencyapp.R;
+import com.example.emergencyapp.activities.MainActivity;
 import com.example.emergencyapp.api.ApiService;
 import com.example.emergencyapp.api.utils.ExtraDataNotifications;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
@@ -47,7 +48,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AlertMessagingUtils implements LocationStatusHandler {
 
     private Context context;
-    FirebaseUser user;
+    private FirebaseUser user;
     private LocationManager locationManager;
     private LocationStatusListener locationListener;
 
@@ -127,7 +128,6 @@ public class AlertMessagingUtils implements LocationStatusHandler {
                     userIdToken.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            success = false;
                             String token = dataSnapshot.getValue(String.class);
                             if (token != null) {
                                 sendAlertMessage(friend, token, title, body);
@@ -143,8 +143,6 @@ public class AlertMessagingUtils implements LocationStatusHandler {
             });
         }
     }
-
-    boolean success;
 
     private void sendAlertMessage(String friend, String token, String title, String body) {
         ExtraDataNotifications extraDataNotifications = new ExtraDataNotifications();
@@ -162,7 +160,7 @@ public class AlertMessagingUtils implements LocationStatusHandler {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    success = true;
+                    UserHelper.sendUserNotification(service, notificationRequestApi, token, context, "Direct message sent successfully");
                     Log.d("Notification Service", "Message alert sent successfully");
                 } else {
                     Log.e("Notification Service", "Failed to send notification");
@@ -174,27 +172,7 @@ public class AlertMessagingUtils implements LocationStatusHandler {
                 Log.e("Notification Service", "Error sending notification", t);
             }
         });
-
-        service.sendNotification(notificationRequestApi).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    if (success) {
-                        Toast.makeText(context, "Direct message sent successfully", Toast.LENGTH_SHORT).show();
-                    }
-                    Log.d("Notification Service", "Notification sent successfully: token " + token);
-                } else {
-                    Log.e("Notification Service", "Failed to send notification");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.e("Notification Service", "Error sending notification", t);
-            }
-        });
     }
-
 
     @Override
     public void onGPSDisabled() {

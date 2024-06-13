@@ -9,7 +9,7 @@ import com.example.emergencyapp.fragments.FriendRequestsFragment;
 import com.example.emergencyapp.fragments.FriendsFragment;
 
 public class SectionsAdapter extends FragmentStateAdapter{
-
+    private final String[] tabTitles = new String[]{"Friends", "Friend Requests"};
     public SectionsAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
     }
@@ -30,5 +30,9 @@ public class SectionsAdapter extends FragmentStateAdapter{
     @Override
     public int getItemCount() {
         return 2;
+    }
+
+    public String getTabTitle(int position) {
+        return tabTitles[position];
     }
 }

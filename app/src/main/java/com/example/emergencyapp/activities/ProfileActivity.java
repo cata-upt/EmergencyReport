@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencyapp.R;
+import com.example.emergencyapp.exceptions.UserException;
 import com.example.emergencyapp.utils.DatabaseCallback;
 import com.example.emergencyapp.utils.DatabaseConnectionUtils;
 import com.example.emergencyapp.entities.User;
@@ -39,14 +40,14 @@ public class ProfileActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
 
-    TextView personName, changeNameTextView, changePictureTextView, changePhoneNumberTextView, locationTextView, friendsTextView;
+    private TextView personName,changeEmailTextView, changeNameTextView, changePictureTextView, changePhoneNumberTextView, locationTextView;
 
-    Button logoutButton;
+    private Button logoutButton;
 
-    UserSessionManager userSession;
-    FirebaseUser user;
-    User userDetails;
-    DatabaseConnectionUtils databaseConnectionUtils;
+    private UserSessionManager userSession;
+    private FirebaseUser user;
+    private User userDetails;
+    private DatabaseConnectionUtils databaseConnectionUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +68,11 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         personName = findViewById(R.id.person_name);
+        changeEmailTextView = findViewById(R.id.changeEmailTextView);
         changeNameTextView = findViewById(R.id.changeNameTextView);
         changePictureTextView = findViewById(R.id.changePictureTextView);
         changePhoneNumberTextView = findViewById(R.id.changePhoneNumberTextView);
         locationTextView = findViewById(R.id.locationTextView);
-        friendsTextView = findViewById(R.id.friendsTextView);
         logoutButton = findViewById(R.id.logout_button);
 
         try {
@@ -82,11 +83,11 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         logoutButton.setOnClickListener(v -> logOut());
+        changeEmailTextView.setOnClickListener(v->showChangeEmailDialog());
         changeNameTextView.setOnClickListener(v -> showChangeNameDialog());
         changePictureTextView.setOnClickListener(v -> pickImage());
         changePhoneNumberTextView.setOnClickListener(v -> showChangePhoneNumberDialog());
         locationTextView.setOnClickListener(v -> showMapActivity());
-        friendsTextView.setOnClickListener(v -> showFriendsListActivity());
     }
 
     @Override
@@ -98,7 +99,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
+        if (item.getItemId() == R.id.menu) {
             Intent i = new Intent(ProfileActivity.this, SettingsActivity.class);
             startActivity(i);
             return true;
@@ -149,6 +150,33 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = new Intent(ProfileActivity.this, SignInActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    public void showChangeEmailDialog() {
+        if (user != null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.dialog_change_attributes, null);
+            builder.setView(dialogView);
+
+            EditText editNewEmail = dialogView.findViewById(R.id.edit_text);
+            Button submitButton = dialogView.findViewById(R.id.button_submit);
+            AlertDialog dialog = builder.create();
+
+            editNewEmail.setText(userSession.getLoginDetails().getEmail());
+
+            submitButton.setOnClickListener(v -> {
+                String newEmail = editNewEmail.getText().toString();
+                if (!newEmail.isEmpty()) {
+                    updateEmail(user, newEmail);
+                    dialog.dismiss(); // Close the dialog
+                } else {
+                    editNewEmail.setError("Email cannot be empty");
+                }
+            });
+
+            dialog.show();
+        }
     }
 
     public void showChangeNameDialog() {
@@ -206,32 +234,52 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void showFriendsListActivity() {
-        Intent intent = new Intent(ProfileActivity.this, FriendsListActivity.class);
-        startActivity(intent);
+    private void updateEmail(FirebaseUser user, String newEmail) {
+        try {
+            UserHelper.validateEmail(newEmail);
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+
+            databaseReference.child(user.getUid()).child("email").setValue(newEmail)
+                    .addOnSuccessListener(aVoid -> Log.d("Update email", "Email updated successfully!"))
+                    .addOnFailureListener(e -> Log.d("Update email", "Failed to update email", e));
+            this.userDetails.setEmail(newEmail);
+            userSession.saveLoginDetails(this.userDetails);
+            Toast.makeText(getApplicationContext(), "Email changed successfully!", Toast.LENGTH_SHORT).show();
+        }catch (UserException userException){
+            Toast.makeText(this, userException.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
-    private void updateUserName(FirebaseUser user, String newUsername) {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
 
-        databaseReference.child(user.getUid()).child("username").setValue(newUsername)
-                .addOnSuccessListener(aVoid -> Log.d("Update Username", "Username updated successfully!"))
-                .addOnFailureListener(e -> Log.d("Update Username", "Failed to update username", e));
-        this.userDetails.setUsername(newUsername);
-        userSession.saveLoginDetails(this.userDetails);
-        Toast.makeText(getApplicationContext(), "Username changed successfully!", Toast.LENGTH_SHORT).show();
-        personName.setText(userSession.getLoginDetails().getUsername());
+    private void updateUserName(FirebaseUser user, String newUsername) {
+        try {
+            UserHelper.validateUsername(newUsername);
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+
+            databaseReference.child(user.getUid()).child("username").setValue(newUsername)
+                    .addOnSuccessListener(aVoid -> Log.d("Update Username", "Username updated successfully!"))
+                    .addOnFailureListener(e -> Log.d("Update Username", "Failed to update username", e));
+            this.userDetails.setUsername(newUsername);
+            userSession.saveLoginDetails(this.userDetails);
+            Toast.makeText(getApplicationContext(), "Username changed successfully!", Toast.LENGTH_SHORT).show();
+            personName.setText(userSession.getLoginDetails().getUsername());
+        }catch (UserException userException){
+            Toast.makeText(this, userException.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void updatePhoneNumber(FirebaseUser user, String newPhoneNumber) {
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         try {
+            UserHelper.validatePhoneNumber(newPhoneNumber);
+            FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
             databaseConnectionUtils.savePhoneNumberUserDetails(user, firebaseDatabase.getReference("Users"), newPhoneNumber);
             databaseConnectionUtils.savePhoneNumberUid(user, firebaseDatabase.getReference("phone_to_uid"), newPhoneNumber);
             this.userDetails.setPhoneNumber(newPhoneNumber);
             userSession.saveLoginDetails(this.userDetails);
         } catch (RuntimeException e) {
             Log.e("Update phone number", "Failed to update the phone number in the database", e);
+        }catch (UserException userException){
+            Toast.makeText(this, userException.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         Toast.makeText(getApplicationContext(), "Phone number changed successfully!", Toast.LENGTH_SHORT).show();

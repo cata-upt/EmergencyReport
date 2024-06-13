@@ -22,6 +22,7 @@ public class UserSessionManager {
         editor.putString("username", user.getUsername());
         editor.putString("phoneNumber", user.getPhoneNumber());
         editor.putString("name", user.getName());
+        editor.putString("email", user.getEmail());
         editor.apply();
     }
 
@@ -30,7 +31,8 @@ public class UserSessionManager {
         String username = sharedPreferences.getString("username", null);
         String phoneNumber = sharedPreferences.getString("phoneNumber", null);
         String name = sharedPreferences.getString("name", null);
-        return new User(name, username,"", "", phoneNumber, isLoggedIn);
+        String email = sharedPreferences.getString("email", null);
+        return new User(name, username,email, "", phoneNumber, isLoggedIn);
     }
 
     public void clearSession() {

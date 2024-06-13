@@ -28,14 +28,12 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    EditText nameField, usernameField, emailField, passwordField, phoneNumberField;
-    Button registerButton;
-    TextView signInTextView, nameLabel, usernameLabel, emailLabel, passwordLabel, phoneNumberLabel;
-//todo: make some required
-    FirebaseDatabase rootNode;
-    DatabaseReference reference;
-
-    DatabaseConnectionUtils databaseConnectionUtils;
+    private EditText nameField, usernameField, emailField, passwordField, phoneNumberField;
+    private Button registerButton;
+    private TextView signInTextView, nameLabel, usernameLabel, emailLabel, passwordLabel, phoneNumberLabel;
+    private FirebaseDatabase rootNode;
+    private DatabaseReference reference;
+    private DatabaseConnectionUtils databaseConnectionUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +90,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
+        if (item.getItemId() == R.id.menu) {
             Intent i = new Intent(SignUpActivity.this, SettingsActivity.class);
             startActivity(i);
             return true;

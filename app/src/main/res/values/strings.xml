@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">Emergency Report</string>
-    <string name="action_settings">Settings\n</string>
+    <string name="menu">Menu</string>
     <string name="default_emergency_text_replacer">Enter your text here</string>
     <string name="emergency_text_title">Set emergency text</string>
     <string name="default_emergency_text">I have an emergency.</string>
-    <string name="add_contact">Add emergency contact</string>
+    <string name="emergency_contacts">Emergency contacts</string>
     <string name="contact_pick_text">Add contact</string>
     <string name="contact_delete_text">Delete contact</string>
     <string name="send_text_button">Send text</string>
@@ -14,10 +14,11 @@
     <string name="change_profile_picture">Change profile picture</string>
     <string name="person_name">Person Name</string>
     <string name="change_phone_number">Change phone number</string>
-    <string name="change_name">Change Username</string>
+    <string name="change_name">Change username</string>
+    <string name="change_email">Change email</string>
     <string name="log_out">Log Out</string>
-    <string name="enter_new_name">Enter new name</string>
-    <string name="change_name_button_submit">Change Name</string>
+    <string name="enter_new_attribute">Enter new attribute</string>
+    <string name="change_button_submit">Submit</string>
     <string name="change_phone_number_field">Change phone number.</string>
     <string name="change_phone_number_submit_button">Change phone number.</string>
     <string name="change_phone_number_hint">Change phone number</string>
@@ -37,6 +38,7 @@
     <string name="friends_list">Friends</string>
     <string name="profile_picture">Profile picture\n</string>
     <string name="emptyFriendsList">The friends list is empty.</string>
+    <string name="emptyFriendsReqList">The friend requests list is empty.</string>
     <string name="accept">Accept</string>
     <string name="delete">Delete</string>
     <string name="lastmessage">LastMessage</string>

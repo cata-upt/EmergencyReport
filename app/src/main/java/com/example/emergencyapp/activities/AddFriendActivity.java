@@ -1,6 +1,7 @@
 package com.example.emergencyapp.activities;
 
 import android.content.Intent;
+import android.media.session.MediaSession;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +21,7 @@ import com.example.emergencyapp.api.utils.ExtraDataNotifications;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
 import com.example.emergencyapp.entities.FriendRequest;
 import com.example.emergencyapp.utils.MessagingService;
+import com.example.emergencyapp.utils.UserHelper;
 import com.example.emergencyapp.utils.UserSessionManager;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,8 +41,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AddFriendActivity extends AppCompatActivity {
     private EditText editTextPhoneNumber;
     private Button buttonAddFriend;
-    MessagingService messagingService;
-    FirebaseUser user;
+    private MessagingService messagingService;
+    private FirebaseUser user;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +92,6 @@ public class AddFriendActivity extends AppCompatActivity {
         });
     }
 
-    boolean success;
     private void sendFriendRequest(String userId) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         UserSessionManager userSession = new UserSessionManager(getApplicationContext());
@@ -103,12 +104,11 @@ public class AddFriendActivity extends AppCompatActivity {
             userIdToken.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    success = false;
                     String token = dataSnapshot.getValue(String.class);
                     if (token != null) {
                         ExtraDataNotifications extraDataNotifications = new ExtraDataNotifications();
-                        extraDataNotifications.addData("targetActivity", "FriendsListActivity");
-                        extraDataNotifications.addData("fragment", "FriendRequests");
+                        extraDataNotifications.addData("targetActivity", "FriendRequests");
+                        extraDataNotifications.addData("fragment", "FriendRequestsFragment");
                         NotificationRequestApi notificationRequestApi = new NotificationRequestApi(token, title, body);
                         notificationRequestApi.setExtraDataNotifications(extraDataNotifications);
                         FriendRequest friendRequest = new FriendRequest(user.getUid(), userId);
@@ -121,26 +121,7 @@ public class AddFriendActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(Call<Void> call, Response<Void> response) {
                                 if (response.isSuccessful()) {
-                                    success = true;
-                                    Log.d("Notification Service", "Notification sent successfully: token "+token);
-                                } else {
-                                    Log.e("Notification Service", "Failed to send notification");
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<Void> call, Throwable t) {
-                                Log.e("Notification Service", "Error sending notification", t);
-                            }
-                        });
-
-                        service.sendNotification(notificationRequestApi).enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(Call<Void> call, Response<Void> response) {
-                                if (response.isSuccessful()) {
-                                    if(success) {
-                                        Toast.makeText(AddFriendActivity.this, "Friend request sent successfully", Toast.LENGTH_SHORT).show();
-                                    }
+                                    UserHelper.sendUserNotification(service, notificationRequestApi, token, AddFriendActivity.this, "Friend request sent successfully");
                                     Log.d("Notification Service", "Notification sent successfully: token "+token);
                                 } else {
                                     Log.e("Notification Service", "Failed to send notification");

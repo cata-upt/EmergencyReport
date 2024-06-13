@@ -2,10 +2,15 @@ package com.example.emergencyapp.utils;
 
 import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.emergencyapp.activities.AddFriendActivity;
+import com.example.emergencyapp.api.ApiService;
+import com.example.emergencyapp.api.utils.NotificationRequestApi;
 import com.example.emergencyapp.entities.User;
 import com.example.emergencyapp.entities.UserLocation;
 import com.example.emergencyapp.exceptions.UserException;
@@ -20,6 +25,10 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class UserHelper {
 
     public static boolean validateUser(User user) throws UserException {
@@ -30,23 +39,23 @@ public class UserHelper {
                 validatePassword(user.getPassword());
     }
 
-    private static boolean validateName(String name) throws UserException {
+    public static boolean validateName(String name) throws UserException {
         if (name.isEmpty()) {
             throw new UserException("The name is not valid!");
         }
         return true;
     }
 
-    private static boolean validateUsername(String username) throws UserException {
-        String noWhiteSpace = "(?=\\s+$)";
+    public static boolean validateUsername(String username) throws UserException {
+        String noWhiteSpace = "^\\S+$";
 
-        if (username.isEmpty() || username.matches(noWhiteSpace)) {
+        if (username.isEmpty() || !username.matches(noWhiteSpace)) {
             throw new UserException("The username is not valid!");
         }
         return true;
     }
 
-    private static boolean validateEmail(String email) throws UserException {
+    public static boolean validateEmail(String email) throws UserException {
         String emailRegex = "[a-zA-Z0-9+_.-]+@[a-z]+\\.+[a-z]+$";
 
         if (email.isEmpty() || !email.matches(emailRegex)) {
@@ -55,7 +64,7 @@ public class UserHelper {
         return true;
     }
 
-    private static boolean validatePassword(String password) throws UserException {
+    public static boolean validatePassword(String password) throws UserException {
 
         if (password.isEmpty()) {
             throw new UserException("The password cannot be null!");
@@ -76,7 +85,7 @@ public class UserHelper {
         return true;
     }
 
-    private static boolean validatePhoneNumber(String phoneNumber) throws UserException {
+    public static boolean validatePhoneNumber(String phoneNumber) throws UserException {
         if (!phoneNumber.matches("^[0-9]+$")) {
             throw new UserException("The phone number can only contain numbers!");
         }
@@ -161,6 +170,25 @@ public class UserHelper {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.e(TAG, "Failed to read location from Firebase", databaseError.toException());
+            }
+        });
+    }
+
+    public static void sendUserNotification(ApiService service, NotificationRequestApi notificationRequestApi, String token, Context context, String message){
+        service.sendNotification(notificationRequestApi).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                    Log.d("Notification Service", "Notification sent successfully: token " + token);
+                } else {
+                    Log.e("Notification Service", "Failed to send notification");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("Notification Service", "Error sending notification", t);
             }
         });
     }
