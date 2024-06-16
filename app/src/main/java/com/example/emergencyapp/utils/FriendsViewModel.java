@@ -28,9 +28,12 @@ public class FriendsViewModel extends ViewModel {
     private MutableLiveData<List<FriendItem>> friends;
     private List<FriendItem> friendsList;
 
+    FirebaseUser user;
+
     public FriendsViewModel() {
         friendsList = new ArrayList<>();
         friends = new MutableLiveData<>();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         fetchFriends();
     }
 
@@ -39,21 +42,28 @@ public class FriendsViewModel extends ViewModel {
     }
 
     public void fetchFriends() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            UserHelper.getFriendsList(user.getUid(), (DatabaseCallback<List<String>>) friendIds -> {
-                for (String userId : friendIds) {
-                    getUserDetails(userId);
+            UserHelper.getFriendsList(user.getUid(), (DataCallback<List<String>>) friendIds -> {
+                if (friendIds != null) {
+                    for (String userId : friendIds) {
+                        getUserDetails(userId);
+                    }
+                    Log.i(TAG, "Friend list retrieved successfully.");
+                } else {
+                    friends.setValue(new ArrayList<>());
                 }
-                Log.i(TAG, "Friend list retrieved successfully.");
             });
+        } else {
+            friends.setValue(new ArrayList<>());
         }
     }
 
     private void getUserDetails(String userId) {
-        UserHelper.getUserDetails(userId, (DatabaseCallback<User>) user -> {
-            fetchLastMessage(user.getUid(), user.getName(), user.getProfileImageUrl());
-        });
+        if (user != null) {
+            UserHelper.getUserDetails(userId, (DataCallback<User>) user -> {
+                fetchLastMessage(user.getUid(), user.getName(), user.getProfileImageUrl());
+            });
+        }
     }
 
     private void fetchLastMessage(String friendId, String name, String profileImageUrl) {

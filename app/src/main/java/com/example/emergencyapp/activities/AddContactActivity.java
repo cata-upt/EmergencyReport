@@ -42,15 +42,15 @@ public class AddContactActivity extends AppCompatActivity {
 
     private int selectedPosition = -1;
     private static final String KEY_CONTACT_LIST = "contactList";
-    private List<Contact> contactList=new ArrayList<>();;
+    private List<Contact> contactList = new ArrayList<>();
+    ;
 
     private ArrayAdapter<Contact> adapter;
 
-    private static String TAG="EmergencyCall";
+    private static String TAG = "EmergencyCall";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_contact_activity);
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
@@ -86,7 +86,7 @@ public class AddContactActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Contact.saveContactsToPreferences(this,contactList);
+        Contact.saveContactsToPreferences(this, contactList);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class AddContactActivity extends AppCompatActivity {
         ArrayList<Contact> existingContacts = Contact.loadContactsFromPreferences(this);
 
         // Add the loaded contacts to the adapter
-        if(existingContacts!=null) {
+        if (existingContacts != null) {
             adapter.addAll(existingContacts);
 
             // Notify the adapter that the data has changed
@@ -122,8 +122,7 @@ public class AddContactActivity extends AppCompatActivity {
         Log.i(TAG, "loadContacts: ");
     }
 
-    public void updateButton(boolean enable)
-    {
+    public void updateButton(boolean enable) {
         mContactPick.setEnabled(enable);
         mContactList.setEnabled(enable);
         mContactDelete.setEnabled(false);
@@ -148,29 +147,25 @@ public class AddContactActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults)
-    {
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == REQUEST_READ_CONTACTS_PERMISSION && grantResults.length > 0)
-        {
+        if (requestCode == REQUEST_READ_CONTACTS_PERMISSION && grantResults.length > 0) {
             updateButton(grantResults[0] == PackageManager.PERMISSION_GRANTED);
         }
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode != Activity.RESULT_OK) return;
 
-        if (requestCode == REQUEST_CONTACT && data != null)
-        {
+        if (requestCode == REQUEST_CONTACT && data != null) {
             String contactID = getContactID(data);
-            Contact contact= getContact(contactID);
+            Contact contact = getContact(contactID);
 
-            if (contact!=null){
+            if (contact != null) {
                 saveContactToPreferences(contact);
             }
 
@@ -178,7 +173,7 @@ public class AddContactActivity extends AppCompatActivity {
     }
 
     @SuppressLint("Range")
-    private String getContactID(Intent data){
+    private String getContactID(Intent data) {
         Uri contactUri = data.getData();
 
         String[] queryFields = new String[]{ContactsContract.Contacts._ID};
@@ -188,9 +183,9 @@ public class AddContactActivity extends AppCompatActivity {
         Cursor cursor = this.getContentResolver()
                 .query(contactUri, queryFields, null, null, null);
 
-        String contactID=null;
+        String contactID = null;
 
-        if(cursor != null && cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             contactID = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
             cursor.close();
         }
@@ -198,10 +193,10 @@ public class AddContactActivity extends AppCompatActivity {
         return contactID;
     }
 
-    private Contact getContact(String contactID){
-        Contact contact=null;
+    private Contact getContact(String contactID) {
+        Contact contact = null;
         Cursor cursorPhone = this.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                new String[]{ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,ContactsContract.CommonDataKinds.Phone.NUMBER},
+                new String[]{ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER},
 
                 ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND " +
                         ContactsContract.CommonDataKinds.Phone.TYPE + " = " +
@@ -209,8 +204,7 @@ public class AddContactActivity extends AppCompatActivity {
 
                 new String[]{contactID},
                 null);
-        try
-        {
+        try {
             if (cursorPhone != null && cursorPhone.moveToFirst()) {
                 int nameColumnIndex = cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
                 int phoneNumberColumnIndex = cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
@@ -221,29 +215,24 @@ public class AddContactActivity extends AppCompatActivity {
                 Log.d(TAG, "Contact Name: " + contactName);
                 Log.d(TAG, "Contact Phone Number: " + contactPhoneNumber);
 
-                contact=new Contact(contactName,contactPhoneNumber);
+                contact = new Contact(contactName, contactPhoneNumber);
             }
 
-        }
-        finally
-        {
+        } finally {
             cursorPhone.close();
         }
         return contact;
     }
 
-    private boolean hasContactsPermission()
-    {
+    private boolean hasContactsPermission() {
         return ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CONTACTS) ==
                 PackageManager.PERMISSION_GRANTED;
     }
 
     // Request contact permission if it
     // has not been granted already
-    private void requestContactsPermission()
-    {
-        if (!hasContactsPermission())
-        {
+    private void requestContactsPermission() {
+        if (!hasContactsPermission()) {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS_PERMISSION);
         }
@@ -252,15 +241,16 @@ public class AddContactActivity extends AppCompatActivity {
     private void saveContactToPreferences(Contact contact) {
         // Load existing contacts from SharedPreferences
         contactList = Contact.loadContactsFromPreferences(this);
-        // Add the new contact
-        adapter.add(contact);
-        contactList.add(contact);
-        adapter.notifyDataSetChanged();
 
-        // Save the updated contacts list to SharedPreferences
-        Contact.saveContactsToPreferences(this, contactList);
+        if (!contactList.contains(contact)) {
+            adapter.add(contact);
+            contactList.add(contact);
+            adapter.notifyDataSetChanged();
 
-        Log.d(TAG, "saveContactToPreferences: "+contactList.size());
+            // Save the updated contacts list to SharedPreferences
+            Contact.saveContactsToPreferences(this, contactList);
+            Log.d(TAG, "saveContactToPreferences: " + contactList.size());
+        }
     }
 
     private void deleteContact(int position) {
@@ -269,16 +259,16 @@ public class AddContactActivity extends AppCompatActivity {
         Contact.saveContactsToPreferences(this, contactList);
         selectedPosition = -1;
         updateSelection();
-        Log.d(TAG, "deleteContact: "+contactList.size());
+        Log.d(TAG, "deleteContact: " + contactList.size());
     }
 
     private void updateSelection() {
         int itemCount = mContactList.getChildCount();
         for (int i = 0; i < itemCount; i++) {
             View view = mContactList.getChildAt(i);
-            if(i==selectedPosition){
-                view.setBackgroundColor(ContextCompat.getColor(this,R.color.accent_color_third));
-            }else{
+            if (i == selectedPosition) {
+                view.setBackgroundColor(ContextCompat.getColor(this, R.color.accent_color_third));
+            } else {
                 view.setBackgroundColor(Color.TRANSPARENT);
             }
         }

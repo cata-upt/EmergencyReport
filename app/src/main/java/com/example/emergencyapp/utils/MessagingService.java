@@ -6,27 +6,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import com.example.emergencyapp.R;
-import com.example.emergencyapp.activities.AddFriendActivity;
 import com.example.emergencyapp.activities.ChatActivity;
 import com.example.emergencyapp.activities.FriendsListActivity;
 import com.example.emergencyapp.activities.MainActivity;
 import com.example.emergencyapp.entities.User;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import java.util.List;
 import java.util.Map;
 
 public class MessagingService extends FirebaseMessagingService {
@@ -76,7 +66,7 @@ public class MessagingService extends FirebaseMessagingService {
     }
 
     private Intent populateSenderDetails(String senderId, Intent intent) {
-        UserHelper.getUserDetails(senderId, (DatabaseCallback<User>) user -> {
+        UserHelper.getUserDetails(senderId, (DataCallback<User>) user -> {
             intent.putExtra("receiverName", user.getName());
             intent.putExtra("receiverProfileImageUrl", user.getProfileImageUrl());
         });

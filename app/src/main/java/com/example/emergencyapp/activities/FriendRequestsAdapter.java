@@ -53,13 +53,13 @@ public class FriendRequestsAdapter extends ArrayAdapter<User> {
         acceptButton.setOnClickListener(v -> {
             if (firebaseUser != null) {
                 acceptFriendRequest(firebaseUser, user.getUid());
-                deleteFriendRequest(firebaseUser, user.getUid());
+                updateStatusFriendRequest(firebaseUser, user.getUid(), "accepted");
             }
         });
 
         declineButton.setOnClickListener(v -> {
-            if(firebaseUser!=null){
-                deleteFriendRequest(firebaseUser, user.getUid());
+            if (firebaseUser != null) {
+                updateStatusFriendRequest(firebaseUser, user.getUid(),"rejected");
             }
         });
 
@@ -72,17 +72,16 @@ public class FriendRequestsAdapter extends ArrayAdapter<User> {
         databaseReference.child(userId).child(user.getUid()).setValue(true);
     }
 
-    private void deleteFriendRequest(FirebaseUser user, String userId) {
+    private void updateStatusFriendRequest(FirebaseUser user, String friendId, String status) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("FriendRequests");
         DatabaseReference userRef = databaseReference.child(user.getUid());
-        userRef.child(userId).removeValue()
+        userRef.child(friendId).child("status").setValue(status)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Log.i(TAG, "Friend request deleted successfully.");
+                        Log.i(TAG, "Friend request status updated to false successfully.");
                     } else {
-                        Log.e(TAG, "Failed to delete friend request.");
+                        Log.e(TAG, "Failed to update friend request status.");
                     }
                 });
-
     }
 }

@@ -1,7 +1,5 @@
 package com.example.emergencyapp.activities;
 
-import android.content.Intent;
-import android.media.session.MediaSession;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +18,7 @@ import com.example.emergencyapp.api.ApiService;
 import com.example.emergencyapp.api.utils.ExtraDataNotifications;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
 import com.example.emergencyapp.entities.FriendRequest;
+import com.example.emergencyapp.utils.DataCallback;
 import com.example.emergencyapp.utils.MessagingService;
 import com.example.emergencyapp.utils.UserHelper;
 import com.example.emergencyapp.utils.UserSessionManager;
@@ -32,6 +31,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -43,6 +44,7 @@ public class AddFriendActivity extends AppCompatActivity {
     private Button buttonAddFriend;
     private MessagingService messagingService;
     private FirebaseUser user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,16 +58,10 @@ public class AddFriendActivity extends AppCompatActivity {
 
         buttonAddFriend.setOnClickListener(v -> {
             String phoneNumber = editTextPhoneNumber.getText().toString().trim();
-            if(user!=null) {
+            if (user != null) {
                 findUserByPhoneNumber(phoneNumber);
-            }else {
-                Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "For a better experience we recommend to sign into your account.", Snackbar.LENGTH_LONG)
-                        .setAction("SIGN IN", s -> {
-                            Intent i =new Intent(AddFriendActivity.this, SignInActivity.class);
-                            startActivity(i);
-                            finish();
-                        });
-                showSnackbar(snackbar);
+            } else {
+                Toast.makeText(AddFriendActivity.this, "To complete this action you need to sign into your account.", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -73,21 +69,43 @@ public class AddFriendActivity extends AppCompatActivity {
     }
 
     private void findUserByPhoneNumber(String phoneNumber) {
-        DatabaseReference phoneRef = FirebaseDatabase.getInstance().getReference("phone_to_uid").child(phoneNumber);
-        phoneRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String userId = dataSnapshot.getValue(String.class);
-                    sendFriendRequest(userId);
+        UserHelper.findUserByPhoneNumber(phoneNumber, AddFriendActivity.this, (DataCallback<String>) this::isPersonFriend);
+    }
+
+    private void isPersonFriend(String friendId) {
+        UserHelper.getFriendsList(user.getUid(), (DataCallback<List<String>>) friendsList -> {
+            if (friendsList != null) {
+                if (friendsList.contains(friendId)) {
+                    Toast.makeText(AddFriendActivity.this, "This person is already your friend", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(AddFriendActivity.this, "User not found", Toast.LENGTH_SHORT).show();
+                    findUniqueFriendRequest(friendId);
                 }
             }
+        });
+    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(AddFriendActivity.this, "Failed to search for user", Toast.LENGTH_SHORT).show();
+    private void findUniqueFriendRequest(String friendId) {
+        UserHelper.findFriendRequest(String.valueOf(friendId), user.getUid(), (DataCallback<String>) status -> {
+            switch (status) {
+                case "pending":
+                    Toast.makeText(AddFriendActivity.this, "The friend request is pending.", Toast.LENGTH_SHORT).show();
+                    break;
+                case "accepted":
+                    Toast.makeText(AddFriendActivity.this, "This person is already your friend", Toast.LENGTH_SHORT).show();
+                    break;
+                case "rejected":
+                    Toast.makeText(AddFriendActivity.this, "Friend request was rejected.", Toast.LENGTH_SHORT).show();
+                    break;
+                case "not_sent":
+                    sendFriendRequest(friendId);
+                    break;
+                case "unknown":
+                    sendFriendRequest(friendId);
+                    Toast.makeText(AddFriendActivity.this, "Unknown friend request status.", Toast.LENGTH_SHORT).show();
+                    break;
+                case "error":
+                    Toast.makeText(AddFriendActivity.this, "Something went wrong. Try again later!", Toast.LENGTH_SHORT).show();
+                    break;
             }
         });
     }
@@ -122,7 +140,7 @@ public class AddFriendActivity extends AppCompatActivity {
                             public void onResponse(Call<Void> call, Response<Void> response) {
                                 if (response.isSuccessful()) {
                                     UserHelper.sendUserNotification(service, notificationRequestApi, token, AddFriendActivity.this, "Friend request sent successfully");
-                                    Log.d("Notification Service", "Notification sent successfully: token "+token);
+                                    Log.d("Notification Service", "Notification sent successfully: token " + token);
                                 } else {
                                     Log.e("Notification Service", "Failed to send notification");
                                 }

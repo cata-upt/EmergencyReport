@@ -2,15 +2,14 @@ package com.example.emergencyapp.utils;
 
 import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 
-import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -22,7 +21,6 @@ import androidx.preference.PreferenceManager;
 
 import com.example.emergencyapp.BaseApplication;
 import com.example.emergencyapp.R;
-import com.example.emergencyapp.activities.MainActivity;
 import com.example.emergencyapp.api.ApiService;
 import com.example.emergencyapp.api.utils.ExtraDataNotifications;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
@@ -38,6 +36,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -51,6 +50,8 @@ public class AlertMessagingUtils implements LocationStatusHandler {
     private FirebaseUser user;
     private LocationManager locationManager;
     private LocationStatusListener locationListener;
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private int tryCount = 0;
 
     public AlertMessagingUtils(Context context) {
         this.context = context;
@@ -70,13 +71,16 @@ public class AlertMessagingUtils implements LocationStatusHandler {
         String emergencyText = sharedPreferences.getString("emergency_text", "");
 
         String location = getLocation();
-        emergencyText += location;
+        if(location.equals(context.getString(R.string.address_not_available)) && tryCount<3) {
+            tryToGetLocationAgain();
+        }else {
+            emergencyText += location;
 
-        if (checkSmsPermissions()) {
-            sendTextToContacts(emergencyText);
+            if (checkSmsPermissions()) {
+                sendTextToContacts(emergencyText);
+            }
+            sendAlertToFriends(emergencyText);
         }
-        sendAlertToFriends(emergencyText);
-
     }
 
     private String getLocation() {
@@ -85,12 +89,16 @@ public class AlertMessagingUtils implements LocationStatusHandler {
         if (location.equals(context.getString(R.string.address_not_available))) {
             if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(context, "Please give location permission.", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(context, "Location not available. Try again!", Toast.LENGTH_SHORT).show();
             }
         }
 
         return location;
+    }
+
+    public void tryToGetLocationAgain() {
+        tryCount++;
+        Log.i(TAG, "tryToGetLocationAgain: "+tryCount);
+        handler.postDelayed(this::handleSendText, 5000);
     }
 
     public void sendTextToContacts(String emergencyText) {
@@ -122,23 +130,25 @@ public class AlertMessagingUtils implements LocationStatusHandler {
             UserSessionManager userSession = new UserSessionManager(context);
             String body = emergencyText;
             String title = userSession.getLoginDetails().getName();
-            UserHelper.getFriendsList(user.getUid(), (DatabaseCallback<List<String>>) friendIds -> {
-                for (String friend : friendIds) {
-                    DatabaseReference userIdToken = FirebaseDatabase.getInstance().getReference("tokens").child(friend);
-                    userIdToken.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            String token = dataSnapshot.getValue(String.class);
-                            if (token != null) {
-                                sendAlertMessage(friend, token, title, body);
+            UserHelper.getFriendsList(user.getUid(), (DataCallback<List<String>>) friendIds -> {
+                if (friendIds != null) {
+                    for (String friend : friendIds) {
+                        DatabaseReference userIdToken = FirebaseDatabase.getInstance().getReference("tokens").child(friend);
+                        userIdToken.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                String token = dataSnapshot.getValue(String.class);
+                                if (token != null) {
+                                    sendAlertMessage(friend, token, title, body);
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Log.w("Messaging Service", "Failed to get token for notification", databaseError.toException());
-                        }
-                    });
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                Log.w("Messaging Service", "Failed to get token for notification", databaseError.toException());
+                            }
+                        });
+                    }
                 }
             });
         }

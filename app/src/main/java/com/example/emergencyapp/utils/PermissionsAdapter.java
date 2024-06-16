@@ -71,9 +71,7 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
                 requestLocationPermissions();
                 break;
             case "Notifications":
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    askNotificationPermission();
-                }
+                askNotificationPermission();
                 break;
             case "SMS":
                 requestSmsPermissions();
@@ -82,9 +80,7 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
                 requestContactsPermissions();
                 break;
             case "Overlay":
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    requestOverlayPermission();
-                }
+                requestOverlayPermission();
                 break;
         }
     }
@@ -114,7 +110,6 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
         ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS_PERMISSION);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void requestOverlayPermission() {
         Intent intent = new Intent();
         intent.setAction(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
@@ -122,22 +117,20 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             intent.putExtra("android.provider.extra.APP_PACKAGE", context.getPackageName());
         } else {
-            intent.putExtra("app_package", context.getPackageName());
-            intent.putExtra("app_uid", Settings.EXTRA_APP_PACKAGE);
+            intent.setData(Uri.parse("package:" + context.getPackageName()));
         }
         context.startActivity(intent);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void askNotificationPermission() {
         Intent intent = new Intent();
-        intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            intent.putExtra("android.provider.extra.APP_PACKAGE", context.getPackageName());
+            intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+            intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
         } else {
-            intent.putExtra("app_package", context.getPackageName());
-            intent.putExtra("app_uid", Settings.EXTRA_APP_PACKAGE);
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.parse("package:" + context.getPackageName()));
         }
         context.startActivity(intent);
     }
@@ -145,14 +138,10 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
     private void revokePermissions(String permission) {
         switch (permission) {
             case "Notifications":
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    askNotificationPermission();
-                }
+                askNotificationPermission();
                 break;
             case "Overlay":
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    requestOverlayPermission();
-                }
+                requestOverlayPermission();
                 break;
             case "Location":
             case "SMS":

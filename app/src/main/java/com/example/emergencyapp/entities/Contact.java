@@ -84,4 +84,17 @@ public class Contact implements Serializable {
     public String toString() {
         return getName()+" : "+getPhoneNumber();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Contact contact = (Contact) obj;
+        return phoneNumber.equals(contact.phoneNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return phoneNumber.hashCode();
+    }
 }

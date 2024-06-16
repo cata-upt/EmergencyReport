@@ -12,24 +12,28 @@ import android.os.Bundle;
 import android.util.Log;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.emergencyapp.R;
+import com.example.emergencyapp.entities.Password;
 import com.example.emergencyapp.entities.UserLocation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LocationStatusListener implements LocationListener {
 
@@ -41,6 +45,8 @@ public class LocationStatusListener implements LocationListener {
     private UserLocation currentLocation;
     private FirebaseUser user;
     private LocationStatusHandler locationStatusHandler;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
 
     private static String TAG = "EmergencyCall";
 
@@ -73,7 +79,6 @@ public class LocationStatusListener implements LocationListener {
             }
         } else {
             Log.d(TAG, "Location updates not requested. Permission or provider not available.");
-            retrieveLocationFromFirebase();
         }
     }
 
@@ -104,14 +109,17 @@ public class LocationStatusListener implements LocationListener {
 
     public String getAddressFromLocation() {
         if (currentLocation == null && user != null) {
-            return retrieveLocationFromFirebase();
+            retrieveLocationFromFirebase();
         }
         return getAddressFromLocation(currentLocation);
     }
 
-    public String retrieveLocationFromFirebase() {
-        UserHelper.getLocationSaved(user.getUid(), (DatabaseCallback<UserLocation>) userLocation -> currentLocation = userLocation);
-        return "Last known location is: " + getAddressFromLocation(currentLocation);
+    public void retrieveLocationFromFirebase() {
+        UserHelper.getLocationSaved(user.getUid(), (DataCallback<UserLocation>) userLocation -> {
+            if(userLocation !=null) {
+                currentLocation = userLocation;
+            }
+        });
     }
 
     private String getAddressFromLocation(UserLocation location) {

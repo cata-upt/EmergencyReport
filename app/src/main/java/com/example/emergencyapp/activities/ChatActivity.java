@@ -5,7 +5,6 @@ import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.entities.AlertMessage;
 import com.example.emergencyapp.entities.User;
-import com.example.emergencyapp.utils.DatabaseCallback;
+import com.example.emergencyapp.utils.DataCallback;
 import com.example.emergencyapp.utils.MessageAdapter;
 import com.example.emergencyapp.utils.UserHelper;
 import com.google.firebase.auth.FirebaseAuth;
@@ -94,7 +93,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void getReceiverDetails() {
-        UserHelper.getUserDetails(receiverId, (DatabaseCallback<User>) receiver -> {
+        UserHelper.getUserDetails(receiverId, (DataCallback<User>) receiver -> {
             receiverName = receiver.getName();
             receiverProfileImageUrl = receiver.getProfileImageUrl();
             populateFriendFields();

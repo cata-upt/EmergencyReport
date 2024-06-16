@@ -1,5 +1,5 @@
 package com.example.emergencyapp.utils;
 
-public interface DatabaseCallback<T> {
+public interface DataCallback<T> {
     void onCallback(T data);
 }

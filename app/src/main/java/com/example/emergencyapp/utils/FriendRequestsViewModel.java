@@ -1,5 +1,6 @@
 package com.example.emergencyapp.utils;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -43,27 +44,44 @@ public class FriendRequestsViewModel extends ViewModel {
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                             String userId = snapshot.getKey();
                             if (userId != null) {
-                                getUserDetails(userId);
+                                getPendingFriendRequests(user.getUid(), userId);
                             }
                         }
-                    } else {
+                    }else {
                         friendRequests.setValue(new ArrayList<>());
                     }
                 }
 
                 @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    // Handle database error
+                public void onCancelled(@NonNull DatabaseError databaseError) {
                 }
             });
+        } else {
+            friendRequests.setValue(new ArrayList<>());
         }
     }
 
+    private void getPendingFriendRequests(String userId, String friendId) {
+        UserHelper.findFriendRequest(userId, friendId, (DataCallback<String>) status -> {
+            switch (status) {
+                case "pending":
+                    getUserDetails(friendId);
+                    break;
+                case "accepted":
+                case "rejected":
+                case "not_sent":
+                case "unknown":
+                case "error":
+                    break;
+            }
+        });
+    }
+
     private void getUserDetails(String userId) {
-       UserHelper.getUserDetails(userId, (DatabaseCallback<User>) user->{
-           updateUserList(user);
-           friendRequests.setValue(new ArrayList<>(friendRequestsList));
-       });
+        UserHelper.getUserDetails(userId, (DataCallback<User>) user -> {
+            updateUserList(user);
+            friendRequests.setValue(new ArrayList<>(friendRequestsList));
+        });
     }
 
     private void updateUserList(User friend) {

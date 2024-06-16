@@ -21,7 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.emergencyapp.R;
 import com.example.emergencyapp.exceptions.UserException;
-import com.example.emergencyapp.utils.DatabaseCallback;
+import com.example.emergencyapp.utils.DataCallback;
 import com.example.emergencyapp.utils.DatabaseConnectionUtils;
 import com.example.emergencyapp.entities.User;
 import com.example.emergencyapp.utils.UserHelper;
@@ -298,7 +298,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void retrieveProfilePictureFromStorage() {
-        UserHelper.retrieveProfilePictureFromStorage(user.getUid(), (DatabaseCallback<String>) uri -> {
+        UserHelper.retrieveProfilePictureFromStorage(user.getUid(), (DataCallback<String>) uri -> {
             Log.d("Profile", "Profile picture URL: " + uri);
             loadImageIntoView(uri);
         });

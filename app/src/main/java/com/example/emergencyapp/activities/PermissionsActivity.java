@@ -64,12 +64,10 @@ public class PermissionsActivity extends AppCompatActivity {
                 "Overlay",
                 "Allows the app to show over other apps.",
                 Settings.canDrawOverlays(this)));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            permissionList.add(new PermissionItem(
-                    "Notifications",
-                    "Allows the app to send you notifications.",
-                    NotificationManagerCompat.from(getApplicationContext()).areNotificationsEnabled()));
-        }
+        permissionList.add(new PermissionItem(
+                "Notifications",
+                "Allows the app to send you notifications.",
+                NotificationManagerCompat.from(getApplicationContext()).areNotificationsEnabled()));
         adapter.notifyDataSetChanged();
     }
 

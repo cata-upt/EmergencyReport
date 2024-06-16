@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.emergencyapp.activities.AddFriendActivity;
 import com.example.emergencyapp.api.ApiService;
 import com.example.emergencyapp.api.utils.NotificationRequestApi;
 import com.example.emergencyapp.entities.User;
@@ -92,7 +91,7 @@ public class UserHelper {
         return true;
     }
 
-    public static void retrieveProfilePictureFromStorage(String userId, DatabaseCallback callback) {
+    public static void retrieveProfilePictureFromStorage(String userId, DataCallback<String> callback) {
         String imagePath = "images/" + userId + ".jpg";
 
         StorageReference storageRef = FirebaseStorage.getInstance().getReference();
@@ -104,13 +103,13 @@ public class UserHelper {
         });
     }
 
-    public static void getUserDetails(String userId, DatabaseCallback callback) {
+    public static void getUserDetails(String userId, DataCallback<User> callback) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
         DatabaseReference userRef = databaseReference.child(userId);
 
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     User friend = dataSnapshot.getValue(User.class);
                     if (friend != null) {
@@ -121,48 +120,50 @@ public class UserHelper {
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Handle database error
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
     }
 
-    public static void getFriendsList(String userId, DatabaseCallback callback) {
+    public static void getFriendsList(String userId, DataCallback<List<String>> callback) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Friends").child(userId);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                List<String> friendIds = new ArrayList<>();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    friendIds.add(snapshot.getKey());
+                if (dataSnapshot.exists()) {
+                    List<String> friendIds = new ArrayList<>();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        friendIds.add(snapshot.getKey());
+                    }
+                    callback.onCallback(friendIds);
+                } else {
+                    callback.onCallback(null);
                 }
-                callback.onCallback(friendIds);
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Handle database error
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
     }
 
-    public static void getLocationSaved(String userId, DatabaseCallback callback) {
+    public static void getLocationSaved(String userId, DataCallback<UserLocation> callback) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
         DatabaseReference locationRef = databaseReference.child(userId).child("location");
-
         locationRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     UserLocation userLocation = dataSnapshot.getValue(UserLocation.class);
 
                     if (userLocation != null) {
                         callback.onCallback(userLocation);
                     } else {
-                        Log.d(TAG, "Location data incomplete");
+                        callback.onCallback(null);
                     }
                 } else {
+                    callback.onCallback(null);
                     Log.d(TAG, "Location data not found in Firebase");
                 }
             }
@@ -174,7 +175,52 @@ public class UserHelper {
         });
     }
 
-    public static void sendUserNotification(ApiService service, NotificationRequestApi notificationRequestApi, String token, Context context, String message){
+    public static void findUserByPhoneNumber(String phoneNumber, Context context, DataCallback<String> callback) {
+        DatabaseReference phoneRef = FirebaseDatabase.getInstance().getReference("phone_to_uid").child(phoneNumber);
+        phoneRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String userId = dataSnapshot.getValue(String.class);
+                    callback.onCallback(userId);
+                } else {
+                    Toast.makeText(context, "User not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(context, "Failed to search for user", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public static void findFriendRequest(String userId, String friendId, DataCallback<String> callback) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("FriendRequests");
+        DatabaseReference userRef = databaseReference.child(userId).child(friendId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String status = dataSnapshot.child("status").getValue(String.class);
+                    if (status != null) {
+                        callback.onCallback(status);
+                    } else {
+                        callback.onCallback("unknown");
+                    }
+                } else {
+                    callback.onCallback("not_sent");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                callback.onCallback("error");
+            }
+        });
+    }
+
+    public static void sendUserNotification(ApiService service, NotificationRequestApi notificationRequestApi, String token, Context context, String message) {
         service.sendNotification(notificationRequestApi).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
