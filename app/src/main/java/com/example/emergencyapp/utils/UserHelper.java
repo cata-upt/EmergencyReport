@@ -151,7 +151,7 @@ public class UserHelper {
     public static void getLocationSaved(String userId, DataCallback<UserLocation> callback) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
         DatabaseReference locationRef = databaseReference.child(userId).child("location");
-        locationRef.addValueEventListener(new ValueEventListener() {
+        locationRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -177,7 +177,7 @@ public class UserHelper {
 
     public static void findUserByPhoneNumber(String phoneNumber, Context context, DataCallback<String> callback) {
         DatabaseReference phoneRef = FirebaseDatabase.getInstance().getReference("phone_to_uid").child(phoneNumber);
-        phoneRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        phoneRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -198,7 +198,7 @@ public class UserHelper {
     public static void findFriendRequest(String userId, String friendId, DataCallback<String> callback) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("FriendRequests");
         DatabaseReference userRef = databaseReference.child(userId).child(friendId);
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -225,7 +225,9 @@ public class UserHelper {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                    if(message!="") {
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                    }
                     Log.d("Notification Service", "Notification sent successfully: token " + token);
                 } else {
                     Log.e("Notification Service", "Failed to send notification");

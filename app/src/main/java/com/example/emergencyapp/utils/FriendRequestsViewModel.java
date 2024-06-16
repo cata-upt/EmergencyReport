@@ -24,6 +24,7 @@ public class FriendRequestsViewModel extends ViewModel {
     public FriendRequestsViewModel() {
         friendRequestsList = new ArrayList<>();
         friendRequests = new MutableLiveData<>();
+        friendRequests.setValue(new ArrayList<>());
         fetchFriendRequests();
     }
 
@@ -47,8 +48,6 @@ public class FriendRequestsViewModel extends ViewModel {
                                 getPendingFriendRequests(user.getUid(), userId);
                             }
                         }
-                    }else {
-                        friendRequests.setValue(new ArrayList<>());
                     }
                 }
 

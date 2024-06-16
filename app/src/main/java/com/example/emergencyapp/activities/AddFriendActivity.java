@@ -1,6 +1,8 @@
 package com.example.emergencyapp.activities;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -42,14 +44,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AddFriendActivity extends AppCompatActivity {
     private EditText editTextPhoneNumber;
     private Button buttonAddFriend;
-    private MessagingService messagingService;
     private FirebaseUser user;
+    private boolean isActivityActive = true;
+    private boolean isToastShown = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_friend);
-        messagingService = new MessagingService();
 
         editTextPhoneNumber = findViewById(R.id.editTextPhoneNumber);
         buttonAddFriend = findViewById(R.id.buttonAddFriend);
@@ -64,8 +66,6 @@ public class AddFriendActivity extends AppCompatActivity {
                 Toast.makeText(AddFriendActivity.this, "To complete this action you need to sign into your account.", Toast.LENGTH_LONG).show();
             }
         });
-
-
     }
 
     private void findUserByPhoneNumber(String phoneNumber) {
@@ -74,9 +74,10 @@ public class AddFriendActivity extends AppCompatActivity {
 
     private void isPersonFriend(String friendId) {
         UserHelper.getFriendsList(user.getUid(), (DataCallback<List<String>>) friendsList -> {
+            if (!isActivityActive) return;
             if (friendsList != null) {
                 if (friendsList.contains(friendId)) {
-                    Toast.makeText(AddFriendActivity.this, "This person is already your friend", Toast.LENGTH_SHORT).show();
+                    showToast( "This person is already your friend");
                 } else {
                     findUniqueFriendRequest(friendId);
                 }
@@ -86,25 +87,26 @@ public class AddFriendActivity extends AppCompatActivity {
 
     private void findUniqueFriendRequest(String friendId) {
         UserHelper.findFriendRequest(String.valueOf(friendId), user.getUid(), (DataCallback<String>) status -> {
+            if (!isActivityActive) return;
             switch (status) {
                 case "pending":
-                    Toast.makeText(AddFriendActivity.this, "The friend request is pending.", Toast.LENGTH_SHORT).show();
+                    showToast("The friend request is pending.");
                     break;
                 case "accepted":
-                    Toast.makeText(AddFriendActivity.this, "This person is already your friend", Toast.LENGTH_SHORT).show();
+                    showToast("This person is already your friend.");
                     break;
                 case "rejected":
-                    Toast.makeText(AddFriendActivity.this, "Friend request was rejected.", Toast.LENGTH_SHORT).show();
+                    showToast("Friend request was rejected.");
                     break;
                 case "not_sent":
                     sendFriendRequest(friendId);
                     break;
                 case "unknown":
                     sendFriendRequest(friendId);
-                    Toast.makeText(AddFriendActivity.this, "Unknown friend request status.", Toast.LENGTH_SHORT).show();
+                    showToast("Unknown friend request status.");
                     break;
                 case "error":
-                    Toast.makeText(AddFriendActivity.this, "Something went wrong. Try again later!", Toast.LENGTH_SHORT).show();
+                    showToast("Something went wrong. Try again later!");
                     break;
             }
         });
@@ -162,16 +164,16 @@ public class AddFriendActivity extends AppCompatActivity {
         }
     }
 
-    private void showSnackbar(Snackbar snackbar) {
-        View snackBarView = snackbar.getView();
-        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.accent_color));
-
-        TextView textView = snackBarView.findViewById(com.google.android.material.R.id.snackbar_text);
-        textView.setTextColor(ContextCompat.getColor(this, android.R.color.black));
-
-        Button actionButton = snackBarView.findViewById(com.google.android.material.R.id.snackbar_action);
-        actionButton.setTextColor(ContextCompat.getColor(this, R.color.black));
-
-        snackbar.show();
+    private void showToast(String message) {
+        if (isActivityActive) {
+            Toast.makeText(AddFriendActivity.this, message, Toast.LENGTH_SHORT).show();
+        }
     }
+
+    @Override
+    protected void onDestroy() {
+        isActivityActive = false;
+        super.onDestroy();
+    }
+
 }

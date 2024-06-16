@@ -46,5 +46,8 @@
     <string name="do_you_really_want_to_send_an_emergency_text">Do you really want to send an emergency text?</string>
     <string name="permission_name">Permission Name</string>
     <string name="description">Description</string>
+    <string name="dialog_text">Dialog text</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
 
 </resources>

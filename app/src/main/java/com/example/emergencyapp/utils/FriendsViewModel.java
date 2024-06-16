@@ -33,6 +33,7 @@ public class FriendsViewModel extends ViewModel {
     public FriendsViewModel() {
         friendsList = new ArrayList<>();
         friends = new MutableLiveData<>();
+        friends.setValue(new ArrayList<>());
         user = FirebaseAuth.getInstance().getCurrentUser();
         fetchFriends();
     }
@@ -49,12 +50,8 @@ public class FriendsViewModel extends ViewModel {
                         getUserDetails(userId);
                     }
                     Log.i(TAG, "Friend list retrieved successfully.");
-                } else {
-                    friends.setValue(new ArrayList<>());
                 }
             });
-        } else {
-            friends.setValue(new ArrayList<>());
         }
     }
 

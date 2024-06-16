@@ -38,6 +38,8 @@ public class FriendsListActivity extends AppCompatActivity{
             String fragmentPosition = intent.getStringExtra("fragment");
             if (fragmentPosition!=null && fragmentPosition.equals("FriendRequestsFragment")) {
                 viewPager.setCurrentItem(1);
+            }else {
+                viewPager.setCurrentItem(0);
             }
         }
     }
