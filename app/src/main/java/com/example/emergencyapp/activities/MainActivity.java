@@ -53,7 +53,9 @@ public class MainActivity extends AppCompatActivity {
         sendTextButton.setOnClickListener(view -> handleSendText());
 
         if (user == null) {
-            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "For a better experience we recommend to sign into your account.", Snackbar.LENGTH_LONG)
+            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),
+                            "For a better experience we recommend to sign into your account.",
+                            Snackbar.LENGTH_LONG)
                     .setAction("SIGN IN", v -> {
                         Intent i = new Intent(MainActivity.this, SignInActivity.class);
                         startActivity(i);
@@ -62,7 +64,9 @@ public class MainActivity extends AppCompatActivity {
             showSnackbar(snackbar);
         }
 
-        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "For a better experience we recommend to grant permissions for this app.", Snackbar.LENGTH_LONG)
+        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content),
+                        "For a better experience we recommend to grant permissions for this app.",
+                        Snackbar.LENGTH_LONG)
                 .setAction("GRANT", v -> {
                     Intent i = new Intent(MainActivity.this, PermissionsActivity.class);
                     startActivity(i);

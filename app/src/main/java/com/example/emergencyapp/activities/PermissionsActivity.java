@@ -1,6 +1,8 @@
 package com.example.emergencyapp.activities;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ public class PermissionsActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private PermissionsAdapter adapter;
     private List<PermissionItem> permissionList;
+    SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +39,8 @@ public class PermissionsActivity extends AppCompatActivity {
 
         adapter = new PermissionsAdapter(permissionList, this, this);
         recyclerView.setAdapter(adapter);
+
+        sharedPref = this.getSharedPreferences("EmergencyPreferences", Context.MODE_PRIVATE);
 
         addToPermissionsList();
     }
@@ -68,6 +73,10 @@ public class PermissionsActivity extends AppCompatActivity {
                 "Notifications",
                 "Allows the app to send you notifications.",
                 NotificationManagerCompat.from(getApplicationContext()).areNotificationsEnabled()));
+        permissionList.add(new PermissionItem(
+                "Send SOS automatically",
+                "Allows the app to send SOS texts automatically after timer expires",
+                sharedPref.getBoolean("autoSOS", false)));
         adapter.notifyDataSetChanged();
     }
 

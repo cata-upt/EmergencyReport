@@ -87,6 +87,21 @@ public class FriendRequestsAdapter extends ArrayAdapter<User> {
         sendAcceptNotification(userId);
     }
 
+    private void updateStatusFriendRequest(FirebaseUser firebaseUser, String friendId, String status) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("FriendRequests");
+        DatabaseReference userRef = databaseReference.child(firebaseUser.getUid());
+        userRef.child(friendId).child("status").setValue(status)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.i(TAG, "Friend request status updated to false successfully.");
+                    } else {
+                        Log.e(TAG, "Failed to update friend request status.");
+                    }
+                });
+        remove(user);
+        notifyDataSetChanged();
+    }
+
     private void sendAcceptNotification(String userId) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BaseApplication.BASE_URL)
@@ -119,20 +134,5 @@ public class FriendRequestsAdapter extends ArrayAdapter<User> {
                 Log.w("Messaging Service", "Failed to get token for notification", databaseError.toException());
             }
         });
-    }
-
-    private void updateStatusFriendRequest(FirebaseUser firebaseUser, String friendId, String status) {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("FriendRequests");
-        DatabaseReference userRef = databaseReference.child(firebaseUser.getUid());
-        userRef.child(friendId).child("status").setValue(status)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.i(TAG, "Friend request status updated to false successfully.");
-                    } else {
-                        Log.e(TAG, "Failed to update friend request status.");
-                    }
-                });
-        remove(user);
-        notifyDataSetChanged();
     }
 }

@@ -6,7 +6,9 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -37,6 +39,7 @@ public class ShakeService extends Service {
     private View overlayView;
     private FirebaseUser user;
     private AlertMessagingUtils alertMessagingUtils;
+    private SharedPreferences sharedPref;
 
     @Override
     public void onCreate() {
@@ -49,6 +52,7 @@ public class ShakeService extends Service {
         mShakeDetector.setOnShakeListener(count -> {
             performAction();
         });
+        sharedPref = this.getSharedPreferences("EmergencyPreferences", Context.MODE_PRIVATE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("EmergencyReportChannelID", "EmergencyReportChannel", NotificationManager.IMPORTANCE_DEFAULT);
@@ -102,7 +106,8 @@ public class ShakeService extends Service {
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.OPAQUE);
         params.gravity = Gravity.CENTER;
@@ -128,9 +133,12 @@ public class ShakeService extends Service {
         new Handler().postDelayed(() -> {
             if (overlayView != null) {
                 windowManager.removeView(overlayView);
-                overlayView = null;
+                if(sharedPref.getBoolean("autoSOS", false)){
+                    handleSendText();
+                }
             }
-        }, 5000); // 5 seconds timer
+        }, 5000);
+
     }
 
     public void handleSendText() {

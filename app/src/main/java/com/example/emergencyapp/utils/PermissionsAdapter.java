@@ -1,12 +1,16 @@
 package com.example.emergencyapp.utils;
 
+import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,6 +86,9 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
             case "Overlay":
                 requestOverlayPermission();
                 break;
+            case "Send SOS automatically":
+                saveBooleanSetting(context, "autoSOS", true);
+                break;
         }
     }
 
@@ -148,9 +155,18 @@ public class PermissionsAdapter extends RecyclerView.Adapter<PermissionsAdapter.
             case "Contacts":
                 showSettingsActivity();
                 break;
+                case "Send SOS automatically":
+                    saveBooleanSetting(context, "autoSOS", false);
+                    break;
         }
     }
 
+    public void saveBooleanSetting(Context context, String key, boolean value) {
+        SharedPreferences sharedPref = context.getSharedPreferences("EmergencyPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
 
     private void showSettingsActivity() {
         Intent intent = new Intent();

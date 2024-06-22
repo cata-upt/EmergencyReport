@@ -69,7 +69,7 @@ public class AddFriendActivity extends AppCompatActivity {
     }
 
     private void findUserByPhoneNumber(String phoneNumber) {
-        UserHelper.findUserByPhoneNumber(phoneNumber, AddFriendActivity.this, (DataCallback<String>) this::isPersonFriend);
+        UserHelper.findUserByPhoneNumber(phoneNumber, AddFriendActivity.this, (DataCallback<String>) friendID-> isPersonFriend(friendID));
     }
 
     private void isPersonFriend(String friendId) {
@@ -81,6 +81,8 @@ public class AddFriendActivity extends AppCompatActivity {
                 } else {
                     findUniqueFriendRequest(friendId);
                 }
+            }else{
+                sendFriendRequest(friendId);
             }
         });
     }

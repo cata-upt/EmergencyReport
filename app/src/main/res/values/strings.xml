@@ -7,7 +7,7 @@
     <string name="emergency_contacts">Emergency contacts</string>
     <string name="contact_pick_text">Add contact</string>
     <string name="contact_delete_text">Delete contact</string>
-    <string name="send_text_button">Send text</string>
+    <string name="send_alert_button">SOS</string>
     <string name="profile">Profile</string>
     <string name="signup_text">Need an account?</string>
     <string name="signin_text">Already have an account?</string>
