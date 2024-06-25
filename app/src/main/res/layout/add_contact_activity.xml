@@ -13,8 +13,7 @@
         app:layout_constraintBottom_toTopOf="@id/buttons_linear">
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/my_toolbar"
-            style="@style/ToolbarTheme"
-            app:menu="@menu/navigation_menu"/>
+            style="@style/ToolbarTheme"/>
     </com.google.android.material.appbar.AppBarLayout>
     <LinearLayout
         android:id="@+id/buttons_linear"

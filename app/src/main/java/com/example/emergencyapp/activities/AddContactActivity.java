@@ -89,24 +89,6 @@ public class AddContactActivity extends AppCompatActivity {
         Contact.saveContactsToPreferences(this, contactList);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.navigation_menu, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu) {
-            Intent i = new Intent(AddContactActivity.this, SettingsActivity.class);
-            startActivity(i);
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
-    }
-
 
     private void loadContacts() {
         // Load existing contacts from SharedPreferences

@@ -203,7 +203,7 @@ public class SignUpActivity extends AppCompatActivity {
         nameField.setText("");
         usernameField.setText("");
         emailField.setText("");
-        passwordField.setText("");
+        phoneNumberField.setText("");
         passwordField.setText("");
         displayMessageTextView("Account created successfully!");
     }

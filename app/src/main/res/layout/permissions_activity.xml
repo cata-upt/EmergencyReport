@@ -12,8 +12,7 @@
         app:layout_constraintBottom_toTopOf="@id/permission_list">
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/my_toolbar"
-            style="@style/ToolbarTheme"
-            app:menu="@menu/navigation_menu"/>
+            style="@style/ToolbarTheme"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout

@@ -14,8 +14,7 @@
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/my_toolbar"
-            style="@style/ToolbarTheme"
-            app:menu="@menu/navigation_menu" />
+            style="@style/ToolbarTheme"/>
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"

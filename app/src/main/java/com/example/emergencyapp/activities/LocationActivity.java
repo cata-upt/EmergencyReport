@@ -146,4 +146,9 @@ public class LocationActivity extends FragmentActivity implements OnMapReadyCall
     private boolean checkLocationPermissions() {
         return ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+    }
 }
